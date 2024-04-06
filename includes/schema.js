@@ -97,9 +97,7 @@ function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy 
         );
         IF NOT schema_is_set THEN
             CREATE OR REPLACE TABLE ${datasetTable}
-            (
             ${schema}
-            )
             ${partitionStatement}
             ${clusterStatement}
             AS

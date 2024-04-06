@@ -2,7 +2,7 @@ const {
     columns,
     uniqueAssertion,
     nonNullAssertion
-} = require("definitons/staging/dim/stg_ad.js");
+} = require('definitions/staging/dim/stg_ad.js');
 const {
     createOrReplaceTable,
     generateSelectStatement,
