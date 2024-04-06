@@ -3,5 +3,15 @@
   "assertionSchema": "dataform_assertions",
   "warehouse": "bigquery",
   "defaultDatabase": "globo-maos-d",
-  "defaultLocation": "us-central1"
+  "defaultLocation": "us-central1",
+
+  "vars": {
+    "sourceSchemaSuffix": "ab_criteo_marketing",
+    "businessUnits": [
+      {
+        "schemaPreffix": "globoplay",
+        "accountsTablePreffixes": ["account"]
+      }
+    ]
+  }
 }

@@ -6,11 +6,7 @@ const dimPrimaryKey = ["id", "advertiser_id"];
 
 function extractAttribute(attribute) {
     return `JSON_EXTRACT_SCALAR(attributes, '$.${attribute}')`;
-};
-
-// function extractJsonAttribute(attribute) {
-//     return `JSON_EXTRACT(attributes, '$.${attribute}')`;
-// };
+}
 
 function extractArrayAttribute(attribute) {
     return `ARRAY(
@@ -18,18 +14,18 @@ function extractArrayAttribute(attribute) {
       FROM UNNEST(
         JSON_EXTRACT_ARRAY(attributes, '$.${attribute}')
       ) AS item)`;
-};
+}
 
 function lookBackDate(dateConstruct) {
     return `DATE(TIMESTAMP_SUB(${dateConstruct}, INTERVAL ${lookBackDays} DAY))`
-};
+}
 
 function joinOn(keys, leftAlias, rightAlias) {
   let leftKeys = keys.map(columnName => `${leftAlias}.${columnName}`).join(',\n    ');
   let rightKeys = keys.map(columnName => `${rightAlias}.${columnName}`).join(',\n    ');
   let on = `(${leftKeys})\n= (${rightKeys})`;
   return on;
-};
+}
 
 function metricsTypeDeclarations(metricsSelect) {
   // Split the input string into individual lines
@@ -55,7 +51,7 @@ function metricsTypeDeclarations(metricsSelect) {
 
   // Join the declarations with a newline character for readability, removed trailing comma for correct syntax
   return `${declarations.join(',\n')},`;
-};
+}
 
 function removeTrailingComma(inputString) {
   // Use a regular expression to match a trailing comma possibly followed by whitespace, before the end of the string
@@ -63,7 +59,36 @@ function removeTrailingComma(inputString) {
   
   // Replace the matched pattern with an empty string, effectively removing it
   return inputString.replace(regex, '');
-};
+}
+
+function generateSimpleSelectStatement(ctx, columns, tableName) {
+  // Assuming columns is an array of column names you want to select
+  const columnsPart = Array.isArray(columns) ? columns.join(", ") : columns;
+  return `SELECT ${columnsPart} FROM ${ctx.ref(tableName)}`;
+}
+
+function generateUnionAllQuery(ctx, tableSuffix, columns) {
+  const businessUnits = dataform.projectConfig.vars.products;
+  const sourceSchemaSuffix = dataform.projectConfig.vars.sourceSchemaSuffix;
+
+  let unionAllQueryParts = [];
+
+  businessUnits.forEach(businessUnit => {
+    const datasetName = `${businessUnit.datasetPrefix}_${sourceSchemaSuffix}`;
+
+    businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
+      const tableName = `${accountPrefix}_${tableSuffix}`;
+      // Generate the full reference name including dataset for ctx.ref()
+      const fullRefName = `${datasetName}.${tableName}`;
+      // Generate the SELECT statement for this table
+      const selectStatement = generateSelectStatement(ctx, columns, fullRefName);
+      // Add the SELECT statement to the parts array
+      unionAllQueryParts.push(selectStatement);
+    });
+  });
+
+  return unionAllQueryParts.join(" UNION ALL ");
+}
 
 module.exports = {
     clusterBy,
@@ -75,4 +100,6 @@ module.exports = {
     joinOn,
     metricsTypeDeclarations,
     removeTrailingComma,
+    generateSimpleSelectStatement,
+    generateUnionAllQuery
 };

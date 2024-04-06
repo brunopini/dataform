@@ -2,7 +2,9 @@ const {
     extractAttribute,
 } = require('includes/utils.js');
 const {
-    generateSelectStatement,
+    generateSimpleSelectStatement,
+    generateSelectColumns,
+    generateUnionAllQuery,
     getNotNullColumns,
     getPrimaryKeys,
 } = require('includes/schema.js');
@@ -42,17 +44,13 @@ const nonNullAssertion = getNotNullColumns(columns);
 
 publish('stg_ad', {
     type: 'view',
+    schema: '',
     assertions: {
         uniqueKey: uniqueAssertion,
         nonNull: nonNullAssertion
     },
     tags: ['staging', 'view', 'dim']
-}).query(ctx => `
-    SELECT
-        ${generateSelectStatement(ctx, columns)}
-    FROM
-        ${ctx.ref('ads')}
-`)
+}).query(ctx => generateUnionAllQuery(ctx, 'ads', generateSelectColumns(ctx, columns)))
 
 module.exports = {
     columns,

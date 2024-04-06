@@ -17,7 +17,7 @@
  * @returns {string} The SQL SELECT statement as a string. The statement includes all columns specified in the columns definition,
  * formatted with their aliases (if provided) and separated by commas. This string is ready to be used in SQL queries to select data from a table.
  */
-function generateSelectStatement(ctx, columnsDefinition) {
+function generateSelectColumns(ctx, columnsDefinition) {
     // Determine if columnsDefinition is a function and call it with ctx, else use it directly
     const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
 
@@ -196,7 +196,7 @@ function simpleDimSchema(primaryKey) {
 `}
 
 module.exports = {
-    generateSelectStatement,
+    generateSelectStatement: generateSelectColumns,
     generateSchemaDefinition,
     getPrimaryKeys,
     getNotNullColumns,
