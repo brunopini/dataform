@@ -32,8 +32,11 @@ function generateSelectStatement(ctx, columnsDefinition) {
  * Generates a SQL schema definition from a given columns configuration, supporting columns with multiple constraints,
  * including the ability for a column to be both a primary key and have foreign key constraints.
  * 
- * @param {Object} ctx A context object used by the columnsDefinition function, providing additional functionalities such as table reference formatting.
- * @param {Function} columnsDefinition A function that returns an array of column definitions, with each column capable of having multiple constraints.
+ * @param {Object} ctx A context object that provides additional information and functionalities needed by the columnsDefinition function.
+ * The context object includes a `ref` method, which might be used by `columnsDefinition` to reference other tables or perform other context-specific actions.
+ * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
+ * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
+ * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
  * 
  * @returns {string} A string representing the SQL schema definition, including all column definitions and constraints.
  */
@@ -64,8 +67,8 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
   
     schemaParts = schemaParts.concat(foreignKeys);
   
-    return `${schemaParts.join(',\n  ')}`;
-  }
+    return `(\n${schemaParts.join(',\n  ')}\n)`;
+}
   
 
 function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy = '') {
@@ -91,18 +94,50 @@ function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy 
             AS
             SELECT * FROM ${datasetTable};
         END IF;
-`};
+`}
+
+/**
+ * Extracts a list of column aliases (or names if alias is not present) marked as not null from the given columns definition.
+ * 
+ * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
+ * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
+ * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
+ * @returns {Array<string>} A list of column aliases or names that are marked as not null.
+ */
+function getNotNullColumns(columnsDefinition) {
+    const ctx = { ref: (tableName) => tableName }; // Mocked ctx
+    return columnsDefinition(ctx)
+      .filter(col => col.type && col.type.includes('NOT NULL'))
+      .map(col => col.alias || col.name);
+}
+
+/**
+ * Extracts a list of column aliases (or names if alias is not present) marked as primary keys from the given columns definition.
+ * 
+ * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
+ * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
+ * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
+ * @returns {Array<string>} A list of column aliases or names that are marked as primary keys.
+ */
+function getPrimaryKeys(columnsDefinition) {
+    const ctx = { ref: (tableName) => tableName }; // Mocked ctx
+    return columnsDefinition(ctx)
+      .filter(col => col.constraints && col.constraints.some(constraint => constraint.includes('PRIMARY KEY')))
+      .map(col => col.alias || col.name);
+  }
 
 function simpleDimSchema(primaryKey) {
     return `
         id STRING NOT NULL,
         name STRING NOT NULL,
         PRIMARY KEY (${primaryKey}) NOT ENFORCED
-`};
+`}
 
 module.exports = {
     generateSelectStatement,
     generateSchemaDefinition,
+    getPrimaryKeys,
+    getNotNullColumns,
     createOrReplaceTable,
     simpleDimSchema
 }

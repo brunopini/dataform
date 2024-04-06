@@ -3,6 +3,8 @@ const {
 } = require('includes/utils.js');
 const {
     generateSelectStatement,
+    getNotNullColumns,
+    getPrimaryKeys,
 } = require('includes/schema.js');
 
 
@@ -38,8 +40,8 @@ const columns = (ctx) => [
 publish('stg_ad', {
     type: 'view',
     assertions: {
-        uniqueKey: ['id', 'advertiser_id'],
-        nonNull: ['id', 'type', 'inventory_type', 'creative_id', 'adset_id']
+        uniqueKey: getPrimaryKeys(columns),
+        nonNull: getNotNullColumns(columns)
     },
     tags: ['staging', 'view', 'dim']
 }).query(ctx => `
