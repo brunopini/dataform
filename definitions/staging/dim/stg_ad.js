@@ -36,12 +36,15 @@ const columns = (ctx) => [
         `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_creative')}(id, advertiser_id)`] },
 ];
 
+const uniqueAssertion = getPrimaryKeys(columns);
+const nonNullAssertion = getNotNullColumns(columns);
+
 
 publish('stg_ad', {
     type: 'view',
     assertions: {
-        uniqueKey: getPrimaryKeys(columns),
-        nonNull: getNotNullColumns(columns)
+        uniqueKey: uniqueAssertion,
+        nonNull: nonNullAssertion
     },
     tags: ['staging', 'view', 'dim']
 }).query(ctx => `
@@ -52,5 +55,7 @@ publish('stg_ad', {
 `)
 
 module.exports = {
-    columns
+    columns,
+    uniqueAssertion,
+    nonNullAssertion
 }
