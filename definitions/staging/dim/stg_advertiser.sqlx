@@ -1,0 +1,27 @@
+js {
+  const {
+      simpleDimSchema,
+      createOrReplaceTable
+  } = require('includes/schema.js');
+
+  // Consts
+  const primaryKey = ['id'];
+  const dimEntitySource = 'Advertiser';
+
+}
+
+config {
+    type: 'view',
+    assertions: {
+        uniqueKey: primaryKey,
+        nonNull: ['id', 'name']
+    },
+    tags: ['staging', 'view', 'dim']
+}
+
+
+SELECT
+  DISTINCT ${dimEntitySource}Id AS id,
+  ${dimEntitySource} AS name,
+FROM
+  ${ref('statistics_pre_click')}

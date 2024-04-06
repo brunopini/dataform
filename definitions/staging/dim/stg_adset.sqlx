@@ -1,0 +1,87 @@
+js {
+    const {
+        dimPrimaryKey,
+        extractAttribute,
+        extractArrayAttribute,
+    } = require('includes/utils.js');
+
+    // Adset Attributes
+    // Schedule Attributes
+    const activationStatus = extractAttribute('schedule.activationStatus');
+    const deliveryStatus = extractAttribute('schedule.deliveryStatus');
+    const endDate = extractAttribute('schedule.endDate.value');
+    const startDate = extractAttribute('schedule.startDate.value');
+    // Targeting Attributes
+    const countryOperand = extractAttribute('targeting.geoLocation.countries.value.operand');
+    const countries = extractArrayAttribute('targeting.geoLocation.countries.value.values');
+    const subdivisions = extractArrayAttribute('targeting.geoLocation.subdivisions.value');
+    const zipCodes = extractArrayAttribute('targeting.geoLocation.zipCodes.value');
+    const frequencyCap = extractAttribute('targeting.frequencyCapping.frequency.value');
+    const maximumImpressions = extractAttribute('targeting.frequencyCapping.maximumImpressions.value');
+    const frequencyCapMode = extractAttribute('targeting.frequencyCapping.mode');
+    const devices = extractArrayAttribute('targeting.deliveryLimitations.devices');
+    const environments = extractArrayAttribute('targeting.deliveryLimitations.environments');
+    const operatingSystems = extractArrayAttribute('targeting.deliveryLimitations.operatingSystems');
+    // Bidding Attributes
+    const bidAmount = extractAttribute('bidding.bidAmount.value');
+    const bidStrategy = extractAttribute('bidding.bidStrategy');
+    const costControler = extractAttribute('bidding.costController');
+    // Budget Attributes
+    const budget = extractAttribute('budget.budgetAmount.value');
+    const budgetDeliverySmoothing = extractAttribute('budget.budgetDeliverySmoothing');
+    const budgetDeliveryWeek = extractAttribute('budget.budgetDeliveryWeek');
+    const budgetRenewal = extractAttribute('budget.budgetRenewal');
+    const budgetStrategy = extractAttribute('budget.budgetStrategy');
+    // Flat Attributes
+    const campaignId = extractAttribute('campaignId');
+    const datasetId = extractAttribute('datasetId');
+    const adsetName = extractAttribute('name');
+    const mediaType = extractAttribute('mediaType');
+    const destinationEnvironment = extractAttribute('destinationEnvironment');
+    // const objective = extractAttribute('objective');
+    const advertiserId = extractAttribute('advertiserId');
+}
+
+config {
+    type: 'view',
+    assertions: {
+        uniqueKey: dimPrimaryKey,
+        nonNull: ['id', 'type', 'name', 'campaign_id', 'advertiser_id']
+    },
+    tags: ['staging', 'view', 'dim', 'adset']
+}
+
+
+SELECT
+    id,
+    type,
+    ${adsetName} AS name,
+    ${activationStatus} AS activation_status,
+    ${deliveryStatus} AS delivery_status,
+    CAST(${startDate} AS TIMESTAMP) AS start_date,
+    CAST(${endDate} AS TIMESTAMP) AS end_date,
+    ${frequencyCap} AS frequency_cap,
+    ${maximumImpressions} AS max_impressions,
+    ${frequencyCapMode} AS frequency_cap_mode,
+    ${bidAmount} AS bid_amount,
+    ${bidStrategy} AS bid_strategy,
+    ${costControler} AS cost_controler,
+    ${budget} AS budget,
+    ${budgetDeliverySmoothing} AS delivery_smoothing,
+    ${budgetDeliveryWeek} AS delivery_week,
+    ${budgetRenewal} AS budget_renewal,
+    ${budgetStrategy} AS budget_strategy,
+    ${campaignId} AS campaign_id,
+    ${datasetId} AS dataset_id,
+    ${mediaType} AS media_type,
+    ${destinationEnvironment} AS destination_environment,
+    ${advertiserId} AS advertiser_id,
+    -- ${countryOperand} AS country_operand,
+    -- ${countries} AS country,
+    -- ${subdivisions} AS subdivision,
+    -- ${zipCodes} AS zip_code,
+    -- ${devices} AS devices,
+    -- ${environments} AS environments,
+    -- ${operatingSystems} AS operating_systems,
+FROM
+    ${ctx.ref('adsets')}
