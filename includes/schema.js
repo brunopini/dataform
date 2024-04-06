@@ -124,7 +124,13 @@ function getPrimaryKeys(columnsDefinition) {
     return columnsDefinition(ctx)
       .filter(col => col.constraints && col.constraints.some(constraint => constraint.includes('PRIMARY KEY')))
       .map(col => col.alias || col.name);
-  }
+}
+
+const simpleDimColumns = (dimEntitySource) => [
+    { name: `${dimEntitySource}Id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
+        'PRIMARY KEY'] },
+    { name: `${dimEntitySource}Name`, type: 'STRING NOT NULL', alias: 'name' }
+  ];
 
 function simpleDimSchema(primaryKey) {
     return `
@@ -139,5 +145,6 @@ module.exports = {
     getPrimaryKeys,
     getNotNullColumns,
     createOrReplaceTable,
-    simpleDimSchema
+    simpleDimSchema,
+    simpleDimColumns
 }
