@@ -109,7 +109,7 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
  * @returns {string} A BigQuery SQL script that conditionally creates or replaces the specified table with the given schema, partitioning, and clustering options.
  * This script includes logic to first check if the table meets certain existing schema criteria before proceeding to create or replace the table.
  */
-function createOrReplaceTableInplace(ctx, schemaDefinition, partitionBy = '', clusterBy = '') {
+function createOrReplaceTableInplace(ctx, schemaDefinition, clusterBy = '', partitionBy = '') {
     const tableDeconstruct = ctx.self().replace(/`/g, '').split('.');
     const [_, dataset, table] = tableDeconstruct;
 

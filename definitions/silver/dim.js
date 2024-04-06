@@ -4,28 +4,32 @@ const {
 } = require('includes/schema.js');
 
 
-const dimensionSuffixes = ['advertiser', 'campaign', 'adset'];
+const dimensions = [
+    'advertiser', 'campaign', 'adset', 'coupon', 'creative',
+    'category', 'channel', 'marketing_objective'
+];
 
-// Function that encapsulates your logic
-function processTableSuffix(tableSuffix) {
+function publishDimTableFromStagingView(dimension) {
     const {
         columns,
         uniqueAssertion,
         nonNullAssertion
-    } = require(`definitions/staging/dim/stg_${tableSuffix}.js`);
+    } = require(`definitions/staging/dim/stg_${dimension}.js`);
 
-    publish(`dim_${tableSuffix}`, {
+    publish(`dim_${dimension}`, {
         type: 'table',
         schema: 'criteo_marketing',
         assertions: {
             uniqueKey: uniqueAssertion,
             nonNull: nonNullAssertion
         },
-        bigquery: {},
+        bigquery: {
+            clusterBy: ['advertiser_id']
+        },
     }).query(ctx => `
         SELECT
             *
-        FROM ${ctx.ref(`stg_${tableSuffix}`)}
+        FROM ${ctx.ref(`stg_${dimension}`)}
     `).preOps(`
         DECLARE schema_is_set BOOL DEFAULT FALSE;
     `).postOps(ctx => `
@@ -33,7 +37,6 @@ function processTableSuffix(tableSuffix) {
     `);
 }
 
-// Iterate over each item in the dimensionSuffixes array
-dimensionSuffixes.forEach(suffix => {
-    processTableSuffix(suffix);
+dimensions.forEach(dimension => {
+    publishDimTableFromStagingView(dimension);
 });
