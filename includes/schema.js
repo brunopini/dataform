@@ -29,46 +29,44 @@ function generateSelectStatement(ctx, columnsDefinition) {
 }
 
 /**
- * Generates a SQL schema definition from a given columns configuration.
+ * Generates a SQL schema definition from a given columns configuration, supporting columns with multiple constraints,
+ * including the ability for a column to be both a primary key and have foreign key constraints.
  * 
- * @param {Object} ctx A context object that provides additional information and functionalities needed by the columnsDefinition function.
- * The context object includes a `ref` method used to reference other tables in foreign key constraints.
- * @param {Function} columnsDefinition A function that takes the context object as an argument and returns an array of column definitions.
- * Each column definition is an object that may contain properties such as name, type, alias, and constraints, defining each column's characteristics.
+ * @param {Object} ctx A context object used by the columnsDefinition function, providing additional functionalities such as table reference formatting.
+ * @param {Function} columnsDefinition A function that returns an array of column definitions, with each column capable of having multiple constraints.
  * 
- * @returns {string} The SQL schema definition as a string. This includes column definitions and constraints, such as primary keys and foreign keys,
- * formatted according to SQL syntax. The schema is wrapped in an "AS (...)" clause, suitable for use in creating views or table schemas.
+ * @returns {string} A string representing the SQL schema definition, including all column definitions and constraints.
  */
 function generateSchemaDefinition(ctx, columnsDefinition) {
     const columns = columnsDefinition(ctx);
   
     let schemaParts = columns.map(col => {
-      // Format each column definition
-      let columnDef = col.alias ? `${col.alias} ${col.type}` : `${col.name} ${col.type}`
-      return columnDef;
+      return col.alias ? `${col.alias} ${col.type}` : `${col.name} ${col.type}`;
     });
   
-    // Handle primary key separately since it's not part of the individual column definition
-    const primaryKey = columns.filter(col => col.constraints && col.constraints.includes('PRIMARY KEY'))
-                            .map(col => col.alias || col.name);
-    if (primaryKey.length > 0) {
-        schemaParts.push(`PRIMARY KEY (${primaryKey.join(', ')}) NOT ENFORCED`);
+    // Separate handling for primary and foreign keys
+    let primaryKeys = [];
+    let foreignKeys = [];
+  
+    columns.forEach(col => {
+      (col.constraints || []).forEach(constraint => {
+        if (constraint.includes('PRIMARY KEY')) {
+          primaryKeys.push(col.alias || col.name);
+        } else if (constraint.includes('FOREIGN KEY')) {
+          foreignKeys.push(constraint);
+        }
+      });
+    });
+  
+    if (primaryKeys.length > 0) {
+      schemaParts.push(`PRIMARY KEY (${primaryKeys.join(', ')}) NOT ENFORCED`);
     }
   
-    // Adjust handling for foreign keys based on the new requirements
-    const foreignKeys = columns.filter(col => col.constraints && col.constraints.includes('FOREIGN KEY'))
-                                .map(col => {
-                                    const fkDetails = col.constraints.match(/FOREIGN KEY(?: \((.*?)\))? (.*)\((.*)\)/);
-                                    const columnName = fkDetails[1] ? `${col.alias || col.name}, ${fkDetails[1]}` : (col.alias || col.name);
-                                    const referenceTable = fkDetails[2];
-                                    const referenceColumns = fkDetails[3];
-                                    return `FOREIGN KEY (${columnName}) REFERENCES ${referenceTable}(${referenceColumns}) NOT ENFORCED`;
-                                });
-  
-    schemaParts = [...schemaParts, ...foreignKeys];
+    schemaParts = schemaParts.concat(foreignKeys);
   
     return `${schemaParts.join(',\n  ')}`;
-}
+  }
+  
 
 function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy = '') {
     const tableDeconstruct = datasetTable.replace(/`/g, '').split('.');

@@ -18,15 +18,20 @@ const creativeId = extractAttribute('creativeId');
 
 // Schema
 const columns = (ctx) => [
-    { name: 'id', type: 'STRING NOT NULL', constraints: 'PRIMARY KEY' },
+    { name: 'id', type: 'STRING NOT NULL', constraints: [
+        'PRIMARY KEY'] },
     { name: adName, type: 'STRING NOT NULL', alias: 'name' },
     { name: inventoryType, type: 'STRING NOT NULL', alias: 'inventory_type' },
     { name: startDate, type: 'TIMESTAMP NOT NULL', alias: 'start_date' },
     { name: endDate, type: 'TIMESTAMP NOT NULL', alias: 'end_date' },
     { name: adDescription, type: 'STRING', alias: 'description' },
-    { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: `FOREIGN KEY ${ctx.ref('dim_advertiser')}(id)` },
-    { name: adSetId, type: 'STRING NOT NULL', alias: 'adset_id', constraints: `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_adset')}(id, advertiser_id)` },
-    { name: creativeId, type: 'STRING NOT NULL', alias: 'creative_id', constraints: `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_creative')}(id, advertiser_id)` },
+    { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
+        'PRIMARY KEY',
+        `FOREIGN KEY ${ctx.ref('dim_advertiser')}(id)`] },
+    { name: adSetId, type: 'STRING NOT NULL', alias: 'adset_id', constraints: [
+        `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_adset')}(id, advertiser_id)`] },
+    { name: creativeId, type: 'STRING NOT NULL', alias: 'creative_id', constraints: [
+        `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_creative')}(id, advertiser_id)`] },
 ];
 
 
