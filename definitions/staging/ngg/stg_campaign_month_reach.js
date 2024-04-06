@@ -10,7 +10,7 @@ const sourceTimeframe = 'Month';
 // Static
 const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
 
-publish('stg_adset_month_reach', {
+publish('stg_campaign_month_reach', {
     type: 'view',
     assertions: {
         uniqueKey: primaryKey,

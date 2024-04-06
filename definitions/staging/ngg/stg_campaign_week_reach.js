@@ -10,7 +10,7 @@ const sourceTimeframe = 'Week';
 // Static
 const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
 
-publish('stg_adset_week_reach', {
+publish('stg_campaign_week_reach', {
     type: 'view',
     assertions: {
         uniqueKey: primaryKey,

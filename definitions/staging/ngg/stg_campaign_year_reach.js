@@ -10,7 +10,7 @@ const sourceTimeframe = 'Year';
 // Static
 const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
 
-publish('stg_adset_year_reach', {
+publish('stg_campaign_year_reach', {
     type: 'view',
     assertions: {
         uniqueKey: primaryKey,
