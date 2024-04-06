@@ -4,7 +4,7 @@ const {
     nonNullAssertion
 } = require('definitions/staging/dim/stg_advertiser.js');
 const {
-    createOrReplaceTable,
+    createOrReplaceTableInplace,
     generateSchemaDefinition
 } = require('includes/schema.js');
 
@@ -21,6 +21,8 @@ publish('dim_advertiser', {
     SELECT
         *
     FROM ${ctx.ref('stg_advertiser')}
-`).preOps(ctx => `
-  DECLARE schema_is_set BOOL DEFAULT FALSE;
-`).postOps(ctx => `${createOrReplaceTable(ctx.self(), generateSchemaDefinition(ctx, columns))}`);
+`).preOps(`
+    DECLARE schema_is_set BOOL DEFAULT FALSE;
+`).postOps(ctx => `
+    ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns))}
+`);
