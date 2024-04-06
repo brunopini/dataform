@@ -110,38 +110,42 @@ function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy 
 /**
  * Extracts a list of column aliases (or names if alias is not present) marked as not null from the given columns definition.
  * 
- * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
- * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
- * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
+ * @param {Function|Array<Object>} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions,
+ * or an array of column definitions directly. Each element in the array is an object representing a column in the database.
+ * This object may contain properties such as 'name', 'type', 'alias', and 'constraints', which define the column's characteristics
+ * and which columns are defined as NOT NULL.
  * @returns {Array<string>} A list of column aliases or names that are marked as not null.
  */
 function getNotNullColumns(columnsDefinition) {
     const ctx = { ref: (tableName) => tableName }; // Mocked ctx
-    return columnsDefinition(ctx)
-      .filter(col => col.type && col.type.includes('NOT NULL'))
-      .map(col => col.alias || col.name);
+    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
+    return columns
+        .filter(col => col.type && col.type.includes('NOT NULL'))
+        .map(col => col.alias || col.name);
 }
 
 /**
  * Extracts a list of column aliases (or names if alias is not present) marked as primary keys from the given columns definition.
  * 
- * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
- * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
- * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
+ * @param {Function|Array<Object>} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions,
+ * or an array of column definitions directly. Each element in the array is an object representing a column in the database.
+ * This object may contain properties such as 'name', 'type', 'alias', and 'constraints', which define the column's characteristics
+ * and which columns are defined as PRIMARY KEYS.
  * @returns {Array<string>} A list of column aliases or names that are marked as primary keys.
  */
 function getPrimaryKeys(columnsDefinition) {
     const ctx = { ref: (tableName) => tableName }; // Mocked ctx
-    return columnsDefinition(ctx)
-      .filter(col => col.constraints && col.constraints.some(constraint => constraint.includes('PRIMARY KEY')))
-      .map(col => col.alias || col.name);
+    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
+    return columns
+        .filter(col => col.constraints && col.constraints.some(constraint => constraint.includes('PRIMARY KEY')))
+        .map(col => col.alias || col.name);
 }
 
 const simpleDimColumns = (dimEntitySource) => [
     { name: `${dimEntitySource}Id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
         'PRIMARY KEY'] },
     { name: `${dimEntitySource}Name`, type: 'STRING NOT NULL', alias: 'name' }
-  ];
+];
 
 function simpleDimSchema(primaryKey) {
     return `
