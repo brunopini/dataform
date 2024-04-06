@@ -9,8 +9,8 @@ const {
 // Ad Attributes
 const adName = extractAttribute('name');
 const inventoryType = extractAttribute('inventoryType');
-const startDate = `CAST(${extractAttribute('startDate')} AS TIMESTAMP`;
-const endDate = `CAST(${extractAttribute('endDate')} AS TIMESTAMP`;
+const startDate = `CAST(${extractAttribute('startDate')} AS TIMESTAMP)`;
+const endDate = `CAST(${extractAttribute('endDate')} AS TIMESTAMP)`;
 const adDescription = extractAttribute('description');
 const advertiserId = extractAttribute('advertiserId');
 const adSetId = extractAttribute('adSetId');
