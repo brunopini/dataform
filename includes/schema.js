@@ -81,13 +81,33 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
     return `(\n${schemaParts.join(',\n  ')}\n)`;
 }
   
-
-function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy = '') {
-    const tableDeconstruct = datasetTable.replace(/`/g, '').split('.');
+/**
+ * Creates or replaces a BigQuery table based on the provided columns definition, with optional partitioning and clustering.
+ * This function constructs a BigQuery SQL script that checks if a table already exists with specific characteristics (e.g., non-nullable STRING columns).
+ * If the table does not exist or needs to be replaced, it creates or replaces the table using the provided columns definition,
+ * applying partitioning and clustering configurations if specified.
+ * 
+ * The function dynamically determines the dataset and table name based on the `ctx.self()` reference, which should return the full table path in BigQuery.
+ * 
+ * @param {Object} ctx A context object containing the `self` method, which returns the full path to the BigQuery table in the format `project.dataset.table`.
+ * The context object may also be used within the columnsDefinition function to reference other tables or perform context-specific actions.
+ * @param {Function|Array<Object>} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions,
+ * or an array of column definitions directly. The column definitions should include details like name, type, alias, and constraints.
+ * @param {string} [partitionBy=''] An optional string specifying the column(s) to partition the table by. If omitted, the table will not be partitioned.
+ * @param {string} [clusterBy=''] An optional string specifying the column(s) to cluster the table by. If omitted, the table will not be clustered.
+ * 
+ * @returns {string} A BigQuery SQL script that conditionally creates or replaces the specified table with the given schema, partitioning, and clustering options.
+ * This script includes logic to first check if the table meets certain existing schema criteria before proceeding to create or replace the table.
+ */
+function createOrReplaceTable(ctx, columnsDefinition, partitionBy = '', clusterBy = '') {
+    const tableDeconstruct = ctx.self().replace(/`/g, '').split('.');
     const [_, dataset, table] = tableDeconstruct;
 
     const partitionStatement = partitionBy !== '' ? `PARTITION BY ${partitionBy}` : '';
     const clusterStatement = clusterBy !== '' ? `CLUSTER BY ${clusterBy}` : '';
+
+    // Determine if columnsDefinition is a function and call it with ctx, else use it directly
+    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
 
     return `
         SET schema_is_set = (
@@ -96,12 +116,15 @@ function createOrReplaceTable(datasetTable, schema, partitionBy = '', clusterBy 
             WHERE table_name = '${table}' AND is_nullable = 'NO' AND data_type = 'STRING'
         );
         IF NOT schema_is_set THEN
-            CREATE OR REPLACE TABLE ${datasetTable}
-            ${schema}
+            CREATE OR REPLACE TABLE ${ctx.self()}
+            ${generateSchemaDefinition(columns)}
             ${partitionStatement}
             ${clusterStatement}
             AS
-            SELECT * FROM ${datasetTable};
+            SELECT
+              ${generateSelectStatement(columns)}
+            FROM
+              ${ctx.self()};
         END IF;
 `}
 

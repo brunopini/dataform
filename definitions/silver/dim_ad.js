@@ -12,6 +12,7 @@ const {
 
 publish('dim_ad', {
     type: 'table',
+    schema: 'criteo_marketing',
     assertions: {
         uniqueKey: uniqueAssertion,
         nonNull: nonNullAssertion
