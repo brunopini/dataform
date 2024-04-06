@@ -71,6 +71,22 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
         }
       });
     });
+
+    // columns.forEach(col => {
+    //   (col.constraints || []).forEach(constraint => {
+    //       if (constraint.includes('PRIMARY KEY')) {
+    //           primaryKeys.push(col.alias || col.name);
+    //       } else if (constraint.includes('FOREIGN KEY')) {
+    //           // Since the constraint already contains the "dataset.table" string directly,
+    //           // extract the relevant parts to construct the FOREIGN KEY statement properly.
+    //           const fkParts = constraint.split(' ');
+    //           const localColumns = fkParts[1].replace(/[\(\)]/g, ''); // Remove parentheses around column names
+    //           const referenceTableWithColumns = fkParts.slice(3).join(' '); // Includes "REFERENCES dataset.table(column)"
+              
+    //           foreignKeys.push(`FOREIGN KEY (${localColumns}) ${referenceTableWithColumns} NOT ENFORCED`);
+    //       }
+    //   });
+    // });
   
     if (primaryKeys.length > 0) {
       schemaParts.push(`PRIMARY KEY (${primaryKeys.join(', ')}) NOT ENFORCED`);
@@ -80,7 +96,7 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
   
     return `(\n${schemaParts.join(',\n  ')}\n)`;
 }
-  
+
 /**
  * Creates or replaces a BigQuery table based on the provided columns definition, with optional partitioning and clustering.
  * This function constructs a BigQuery SQL script that checks if a table already exists with specific characteristics (e.g., non-nullable STRING columns).
@@ -99,15 +115,12 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
  * @returns {string} A BigQuery SQL script that conditionally creates or replaces the specified table with the given schema, partitioning, and clustering options.
  * This script includes logic to first check if the table meets certain existing schema criteria before proceeding to create or replace the table.
  */
-function createOrReplaceTable(ctx, columnsDefinition, partitionBy = '', clusterBy = '') {
+function createOrReplaceTableInplace(ctx, schemaDefinition, partitionBy = '', clusterBy = '') {
     const tableDeconstruct = ctx.self().replace(/`/g, '').split('.');
     const [_, dataset, table] = tableDeconstruct;
 
     const partitionStatement = partitionBy !== '' ? `PARTITION BY ${partitionBy}` : '';
     const clusterStatement = clusterBy !== '' ? `CLUSTER BY ${clusterBy}` : '';
-
-    // Determine if columnsDefinition is a function and call it with ctx, else use it directly
-    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
 
     return `
         SET schema_is_set = (
@@ -117,12 +130,12 @@ function createOrReplaceTable(ctx, columnsDefinition, partitionBy = '', clusterB
         );
         IF NOT schema_is_set THEN
             CREATE OR REPLACE TABLE ${ctx.self()}
-            ${generateSchemaDefinition(columns)}
+            ${schemaDefinition}
             ${partitionStatement}
             ${clusterStatement}
             AS
             SELECT
-              ${generateSelectStatement(columns)}
+              *
             FROM
               ${ctx.self()};
         END IF;
@@ -193,7 +206,7 @@ module.exports = {
     generateSchemaDefinition,
     getPrimaryKeys,
     getNotNullColumns,
-    createOrReplaceTable,
+    createOrReplaceTableInplace,
     simpleDimSchema,
     simpleDimColumns
 }
