@@ -141,10 +141,23 @@ function getPrimaryKeys(columnsDefinition) {
         .map(col => col.alias || col.name);
 }
 
+/**
+ * Generates an array of column definitions for a simple dimensional table based on a given dimension entity source name.
+ * The function constructs two columns typically found in dimensional tables: an ID column and a name column. 
+ * The ID column is marked as a primary key and not nullable, and the name column is also not nullable.
+ * 
+ * @param {string} dimEntitySource The base name of the dimension entity, which is used to construct the column names.
+ * For example, if 'dimEntitySource' is 'customer', the resulting columns would be named 'customerId' (with an alias of 'id') 
+ * and 'customer' (with an alias of 'name'), respectively.
+ * 
+ * @returns {Array<Object>} An array containing two column definition objects. The first object defines the primary key ID column,
+ * and the second object defines the name column. Each object includes properties for the column's name, type, alias, 
+ * and any constraints (such as 'PRIMARY KEY' for the ID column).
+ */
 const simpleDimColumns = (dimEntitySource) => [
     { name: `${dimEntitySource}Id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
         'PRIMARY KEY'] },
-    { name: `${dimEntitySource}Name`, type: 'STRING NOT NULL', alias: 'name' }
+    { name: `${dimEntitySource}`, type: 'STRING NOT NULL', alias: 'name' }
 ];
 
 function simpleDimSchema(primaryKey) {

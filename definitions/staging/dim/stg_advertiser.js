@@ -20,7 +20,7 @@ publish('stg_advertiser', {
   SELECT
     DISTINCT ${generateSelectStatement(ctx, columns)}
   FROM
-    ${ref('statistics_pre_click')}
+    ${ctx.ref('statistics_pre_click')}
 `)
 
 module.exports = {
