@@ -4,17 +4,22 @@
  * using their 'name' as the column identifier and their 'alias' as the alias in the SQL statement. 
  * If an alias is provided, it will be used in the SELECT statement; otherwise, the column's name will be used directly.
  * 
+ * This function can accept the columns configuration either as a function that returns an array of column definitions
+ * or directly as an array of column definitions. If a function is provided, it will be invoked with the provided ctx object.
+ * 
  * @param {Object} ctx A context object that provides additional information and functionalities needed by the columnsDefinition function.
  * The context object includes a `ref` method, which might be used by `columnsDefinition` to reference other tables or perform other context-specific actions.
- * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
- * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
- * which define the column's characteristics and how it should be represented in the SQL SELECT statement.
+ * @param {Function|Array<Object>} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions,
+ * or an array of column definitions directly. Each element in the array is an object representing a column in the database.
+ * This object may contain properties such as 'name', 'type', 'alias', and 'constraints', which define the column's characteristics
+ * and how it should be represented in the SQL SELECT statement.
  * 
  * @returns {string} The SQL SELECT statement as a string. The statement includes all columns specified in the columns definition,
  * formatted with their aliases (if provided) and separated by commas. This string is ready to be used in SQL queries to select data from a table.
  */
 function generateSelectStatement(ctx, columnsDefinition) {
-    const columns = columnsDefinition(ctx);
+    // Determine if columnsDefinition is a function and call it with ctx, else use it directly
+    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
 
     // Generate the SELECT part of the SQL statement
     const selectClause = columns.map(col => {
@@ -32,16 +37,22 @@ function generateSelectStatement(ctx, columnsDefinition) {
  * Generates a SQL schema definition from a given columns configuration, supporting columns with multiple constraints,
  * including the ability for a column to be both a primary key and have foreign key constraints.
  * 
+ * This function is designed to accept the columns configuration either as a function that returns an array of column definitions
+ * or directly as an array of column definitions. If a function is provided, it will be invoked with the provided ctx object.
+ * 
  * @param {Object} ctx A context object that provides additional information and functionalities needed by the columnsDefinition function.
  * The context object includes a `ref` method, which might be used by `columnsDefinition` to reference other tables or perform other context-specific actions.
- * @param {Function} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions.
- * Each element in the array is an object representing a column in the database. This object may contain properties such as 'name', 'type', 'alias', and 'constraints',
- * which define the column's characteristics and how it should be represented in the SQL CREATE TABLE statement.
+ * @param {Function|Array<Object>} columnsDefinition A function that accepts a context object as an argument and returns an array of column definitions,
+ * or an array of column definitions directly. Each element in the array is an object representing a column in the database.
+ * This object may contain properties such as 'name', 'type', 'alias', and 'constraints', which define the column's characteristics
+ * and how it should be represented in the SQL CREATE TABLE statement.
  * 
  * @returns {string} A string representing the SQL schema definition, including all column definitions and constraints.
  */
 function generateSchemaDefinition(ctx, columnsDefinition) {
-    const columns = columnsDefinition(ctx);
+    // Determine if columnsDefinition is a function and call it with ctx, else use it directly
+    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
+
   
     let schemaParts = columns.map(col => {
       return col.alias ? `${col.alias} ${col.type}` : `${col.name} ${col.type}`;
