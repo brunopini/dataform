@@ -4,8 +4,6 @@ js {
       createOrReplaceTable
   } = require('includes/schema.js');
 
-  // Consts
-  const primaryKey = ['id'];
   const dimEntitySource = 'Channel';
 
 }
@@ -13,7 +11,7 @@ js {
 config {
     type: 'view',
     assertions: {
-        uniqueKey: primaryKey,
+        uniqueKey: ['id'],
         nonNull: ['id', 'name']
     },
     tags: ['staging', 'view', 'dim']

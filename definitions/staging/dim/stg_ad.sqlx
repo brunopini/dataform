@@ -1,6 +1,5 @@
 js {
     const {
-        dimPrimaryKey,
         extractAttribute,
     } = require('includes/utils.js');
 
@@ -18,7 +17,7 @@ js {
 config {
     type: 'view',
     assertions: {
-        uniqueKey: dimPrimaryKey,
+        uniqueKey: ['id', 'advertiser_id'],
         nonNull: ['id', 'type', 'inventory_type', 'creative_id', 'adset_id']
     },
     tags: ['staging', 'view', 'dim', 'ad']
