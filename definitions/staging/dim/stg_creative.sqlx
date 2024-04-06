@@ -18,7 +18,7 @@ js {
 }
 
 config {
-    type: 'table',
+    type: 'view',
     assertions: {
         uniqueKey: ['id', 'advertiser_id'],
         nonNull: ['id', 'type', 'dataset_id', 'name', 'format', 'status', 'advertiser_id']
