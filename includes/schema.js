@@ -64,29 +64,23 @@ function generateSchemaDefinition(ctx, columnsDefinition) {
   
     columns.forEach(col => {
       (col.constraints || []).forEach(constraint => {
-        if (constraint.includes('PRIMARY KEY')) {
-          primaryKeys.push(col.alias || col.name);
-        } else if (constraint.includes('FOREIGN KEY')) {
-          foreignKeys.push(constraint);
-        }
+          if (constraint.includes('PRIMARY KEY')) {
+              primaryKeys.push(col.alias || col.name);
+          } else if (constraint.startsWith('FOREIGN KEY')) {
+              // Extract the FK details, including any local columns specified and the reference part
+              const fkPattern = /^FOREIGN KEY(?: \((.*?)\))? (.*)\((.*)\)$/;
+              const matches = fkPattern.exec(constraint);
+              if (matches) {
+                  const localColumnsSpecified = matches[1];
+                  const referencePart = matches[2];
+                  const referenceColumns = matches[3];
+                  // Construct the local part of the FK definition
+                  const localPart = localColumnsSpecified ? `${col.alias || col.name}, ${localColumnsSpecified}` : col.alias || col.name;
+                  foreignKeys.push(`FOREIGN KEY (${localPart}) REFERENCES ${referencePart}(${referenceColumns}) NOT ENFORCED`);
+              }
+          }
       });
-    });
-
-    // columns.forEach(col => {
-    //   (col.constraints || []).forEach(constraint => {
-    //       if (constraint.includes('PRIMARY KEY')) {
-    //           primaryKeys.push(col.alias || col.name);
-    //       } else if (constraint.includes('FOREIGN KEY')) {
-    //           // Since the constraint already contains the "dataset.table" string directly,
-    //           // extract the relevant parts to construct the FOREIGN KEY statement properly.
-    //           const fkParts = constraint.split(' ');
-    //           const localColumns = fkParts[1].replace(/[\(\)]/g, ''); // Remove parentheses around column names
-    //           const referenceTableWithColumns = fkParts.slice(3).join(' '); // Includes "REFERENCES dataset.table(column)"
-              
-    //           foreignKeys.push(`FOREIGN KEY (${localColumns}) ${referenceTableWithColumns} NOT ENFORCED`);
-    //       }
-    //   });
-    // });
+  });
   
     if (primaryKeys.length > 0) {
       schemaParts.push(`PRIMARY KEY (${primaryKeys.join(', ')}) NOT ENFORCED`);

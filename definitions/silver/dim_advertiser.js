@@ -9,7 +9,10 @@ const {
 } = require('includes/schema.js');
 
 
-publish('dim_advertiser', {
+const tableSuffix = 'advertiser';
+
+
+publish(`dim_${tableSuffix}`, {
     type: 'table',
     schema: 'criteo_marketing',
     assertions: {
@@ -20,7 +23,7 @@ publish('dim_advertiser', {
 }).query(ctx => `
     SELECT
         *
-    FROM ${ctx.ref('stg_advertiser')}
+    FROM ${ctx.ref(`stg_${tableSuffix}`)}
 `).preOps(`
     DECLARE schema_is_set BOOL DEFAULT FALSE;
 `).postOps(ctx => `
