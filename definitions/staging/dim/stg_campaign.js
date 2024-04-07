@@ -50,7 +50,7 @@ businessUnits.forEach(businessUnit => {
         tags: ['staging', 'view', 'dim']
     }).query(ctx => generateUnionAllQuery(
         ctx, generateSelectColumns(ctx, columns),
-        sourceSchemaSuffix, 'capaigns', businessUnit)
+        sourceSchemaSuffix, 'campaigns', businessUnit)
     )
 })
 
