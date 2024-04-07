@@ -21,16 +21,16 @@ const nonNullAssertion = getNotNullColumns(columns);
 
 businessUnits.forEach(businessUnit => {
   publish('stg_advertiser', {
-      type: 'view',
-      schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
-      assertions: {
-          uniqueKey: uniqueAssertion,
-          nonNull: nonNullAssertion
-      },
-      tags: ['staging', 'view', 'dim']
-    }).query(ctx => generateUnionAllQuery(
-      ctx, generateSelectColumns(ctx, columns),
-      sourceSchemaSuffix, 'ads', businessUnit)
+    type: 'view',
+    schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
+    assertions: {
+        uniqueKey: uniqueAssertion,
+        nonNull: nonNullAssertion
+    },
+    tags: ['staging', 'view', 'dim']
+  }).query(ctx => generateUnionAllQuery(
+    ctx, generateSelectColumns(ctx, columns),
+    sourceSchemaSuffix, 'statistics_pre_click', businessUnit)
   )
 })
 
