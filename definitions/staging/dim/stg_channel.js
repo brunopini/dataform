@@ -9,6 +9,7 @@ const {
   simpleDimColumns,
   getNotNullColumns,
   getPrimaryKeys,
+  generateSelectColumns
 } = require('includes/schema.js');
 
 

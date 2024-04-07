@@ -6,6 +6,7 @@ const {
   generateUnionAllQuery,
 } = require('includes/utils.js');
 const {
+  generateSelectColumns,
   simpleDimColumns,
   getNotNullColumns,
   getPrimaryKeys,
