@@ -19,9 +19,9 @@ const couponName = extractAttribute('name');
 const couponStatus = extractAttribute('status');
 const format = extractAttribute('format');
 const author = extractAttribute('author');
-const showEvery = extractAttribute('showEvery');
-const showDuration = extractAttribute('showDuration');
-const rotationNumber = extractAttribute('rotationsNumber');
+const showEvery = `CAST(${extractAttribute('showEvery')} AS NUMERIC)`;
+const showDuration = `CAST(${extractAttribute('showDuration')} AS NUMERIC)`;
+const rotationNumber = `CAST(${extractAttribute('rotationsNumber')} AS NUMERIC)`;
 const landingPageUrl = extractAttribute('landingPageUrl');
 const images = extractArrayAttribute('images');
 const adSetId = extractAttribute('adSetId');
@@ -38,8 +38,8 @@ const columns = (ctx) => [
     { name: showEvery, type: 'NUMERIC', alias: 'show_every' },
     { name: showDuration, type: 'NUMERIC', alias: 'show_duration' },
     { name: rotationNumber, type: 'NUMERIC', alias: 'rotation_numer' },
-    { name: landingPageUrl, type: 'NUMERIC', alias: 'lp_url' },
-    { name: images, type: 'STRING', alias: 'images' },
+    { name: landingPageUrl, type: 'STRING', alias: 'lp_url' },
+    { name: images, type: 'ARRAY<STRING>', alias: 'images' },
     { name: adSetId, type: 'STRING NOT NULL', alias: 'adset_id', constraints: [
         `FOREIGN KEY (advertiser_id) ${ctx.ref('dim_adset')}(id, advertiser_id)`]},
     { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
