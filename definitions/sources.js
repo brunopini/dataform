@@ -28,7 +28,7 @@ const sourceStreams = [
 businessUnits.forEach(businessUnit => {
     const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
   
-    businessUnit.accountsTablePrefixes.forEach(account => {
+    businessUnit.accountsTablePreffixes.forEach(account => {
       sourceStreams.forEach(table => {
         const tableName = `${account}_${table}`;
   

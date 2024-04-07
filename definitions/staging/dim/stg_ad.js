@@ -6,7 +6,6 @@ const {
     extractAttribute,
 } = require('includes/utils.js');
 const {
-    generateSimpleSelectStatement,
     generateSelectColumns,
     generateUnionAllQuery,
     getNotNullColumns,
