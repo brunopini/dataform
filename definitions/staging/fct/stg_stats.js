@@ -83,7 +83,12 @@ const nonNullAssertion = getNotNullColumns(columns);
 
 function generateJoinQuery(ctx, columns, sourceSchemaSuffix, tablesToJoin, uniqueAssertion, businessUnit) {
   const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
-  let baseQuery = `SELECT ${generateSelectColumns(ctx, columns)} FROM ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} `;
+  let baseQuery = `
+    SELECT
+      ${generateSelectColumns(ctx, columns)}
+    FROM
+      ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} t0 
+  `;
   
   tablesToJoin.forEach((table, index) => {
       const tableAlias = `t${index + 1}`;

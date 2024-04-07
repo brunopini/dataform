@@ -1,4 +1,5 @@
 const sourceSchemaSuffix = 'ab_criteo_marketing';
+const targetSchemaSuffix = 'criteo_marketing';
 
 const businessUnits = [
     {
@@ -9,5 +10,6 @@ const businessUnits = [
 
 module.exports = {
     sourceSchemaSuffix,
+    targetSchemaSuffix,
     businessUnits
 }
