@@ -10,11 +10,6 @@ const {
     generateUnionAllQuery,
     lookBackDate
 } = require('includes/utils.js');
-const {
-    columns,
-    uniqueAssertion,
-    nonNullAssertion
-} = require(`definitions/staging/fct/stg_stats.js`);
 
 
 const fctTables = [
@@ -28,8 +23,14 @@ const fctTables = [
 
 fctTables.forEach(table => {
     const tableSufix = table.sufix;
+    const {
+        columns,
+        uniqueAssertion,
+        nonNullAssertion
+    } = require(`definitions/staging/fct/stg_${tableSufix}.js`);
     const partitionBy = table.partitionBy;
     const clusterBy = table.clusterBy;
+
     // Assume businessUnits is an array of business unit objects, each with schemaPrefix property
     publish(`fct_${tableSufix}`, {
         type: 'incremental',
