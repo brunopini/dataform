@@ -18,7 +18,7 @@ const nonClusteringDimensions = [
     'advertiser', 'category', 'channel', 'marketing_objective'
 ];
 
-function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy = '') {
+function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy) {
     const {
         columns,
         uniqueAssertion,
