@@ -31,6 +31,7 @@ businessUnits.forEach(businessUnit => {
   }).query(ctx => generateUnionAllQuery(
     ctx, generateSelectColumns(ctx, columns),
     sourceSchemaSuffix, 'statistics_pre_click', businessUnit)
+    // true for account level union (default) and for distinct select ^
   )
 })
 

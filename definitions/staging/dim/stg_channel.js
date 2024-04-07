@@ -30,7 +30,8 @@ businessUnits.forEach(businessUnit => {
     tags: ['staging', 'view', 'dim']
   }).query(ctx => generateUnionAllQuery(
     ctx, generateSelectColumns(ctx, columns),
-    sourceSchemaSuffix, 'statistics_pre_click', businessUnit)
+    sourceSchemaSuffix, 'statistics_pre_click', businessUnit, true, true)
+    // true for account level union (default) and for distinct select ^
   )
 })
 
