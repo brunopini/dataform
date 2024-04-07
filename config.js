@@ -1,19 +1,21 @@
-const sourceSchemaSuffix = 'ab_criteo_marketing';
-const targetSchemaSuffix = 'criteo_marketing';
+const sourceSchemaSufix = 'ab_criteo_marketing';
+const targetSchemaSufix = 'criteo_marketing';
+const lookBackDays = '30';
 
 const businessUnits = [
     {
-        schemaPreffix: 'globoplay',
-        accountsTablePreffixes: ['account', 'account2']
+        schemaPrefix: 'globoplay',
+        accountsTablePrefixes: ['account', 'account2']
     },
     {
-        schemaPreffix: 'product2',
-        accountsTablePreffixes: ['account3']
+        schemaPrefix: 'product2',
+        accountsTablePrefixes: ['account3']
     }
 ];
 
 module.exports = {
-    sourceSchemaSuffix,
-    targetSchemaSuffix,
+    sourceSchemaSufix,
+    targetSchemaSufix,
+    lookBackDays,
     businessUnits
 }

@@ -1,8 +1,10 @@
 const clusterBy = "advertiser_id";
 
-const lookBackDays = "30";
+const { 
+  lookBackDays
+} = require('config.js');
 
-const dimPrimaryKey = ["id", "advertiser_id"];
+// const dimPrimaryKey = ["id", "advertiser_id"];
 
 function extractAttribute(attribute) {
     return `JSON_EXTRACT_SCALAR(attributes, '$.${attribute}')`;
@@ -68,15 +70,15 @@ function generateSimpleSelectStatement(ctx, columns, schema, table, distinct = f
 }
 
 function generateUnionAllQuery(
-    ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit,
+    ctx, columns, sourceSchemaSufix, sourceTableSufix, businessUnit,
     accountsLevel = true, distinct = false) {
   let unionAllQueryParts = [];
 
-  const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
+  const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`;
 
   if (accountsLevel) {
-    businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
-      const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
+    businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
+      const sourceTableName = `${accountPrefix}_${sourceTableSufix}`;
       // Generate the SELECT statement for this table
       const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
       // Add the SELECT statement to the parts array
@@ -84,7 +86,7 @@ function generateUnionAllQuery(
     });
   } else {
     // If accountsLevel is false, generate a select statement without iterating over accounts
-    const sourceTableName = `${sourceTableSuffix}`;
+    const sourceTableName = `${sourceTableSufix}`;
     const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
     unionAllQueryParts.push(selectStatement);
   }
@@ -92,9 +94,30 @@ function generateUnionAllQuery(
   return unionAllQueryParts.join(" UNION ALL ");
 }
 
+function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPrefix,baseTables, onKeys, businessUnit) {
+  // Duplicate the logic to generate JOIN queries, now including the accountPrefix logic.
+  let tablesToJoin = baseTables.map(table => `${accountPrefix}_${table}`);
+  const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
+  let baseQuery = `
+      SELECT
+      ${columns}
+      FROM
+      ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSufix}`, baseTable)} t0 
+  `;
+
+  tablesToJoin.forEach((table, index) => {
+      const tableAlias = `t${index + 1}`;
+      baseQuery += `
+          JOIN ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSufix}`, table)} ${tableAlias}
+          ON ${joinOn(onKeys, 't0', tableAlias)}\n
+      `;
+  });
+  return baseQuery;
+}
+
 module.exports = {
     clusterBy,
-    dimPrimaryKey,
+    // dimPrimaryKey,
     extractAttribute,
     extractArrayAttribute,
     lookBackDate,
@@ -102,5 +125,6 @@ module.exports = {
     metricsTypeDeclarations,
     removeTrailingComma,
     generateSimpleSelectStatement,
-    generateUnionAllQuery
+    generateUnionAllQuery,
+    generateJoinQueryForAccounts
 };

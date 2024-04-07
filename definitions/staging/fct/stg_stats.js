@@ -1,9 +1,9 @@
 const {
-  sourceSchemaSuffix,
+  sourceSchemaSufix,
   businessUnits
 } = require('config.js');
 const {
-  joinOn,
+  generateJoinQueryForAccounts
 } = require('includes/utils.js');
 const {
   getNotNullColumns,
@@ -80,36 +80,17 @@ const columns = (ctx) => baseColumns(ctx, 't0.').concat([
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
-
-function generateJoinQueryForPrefix(ctx, columns, sourceSchemaSuffix, accountPrefix, baseTables, businessUnit) {
-    // Duplicate the logic to generate JOIN queries, now including the accountPrefix logic.
-    let tablesToJoin = baseTables.map(table => `${accountPrefix}_${table}`);
-    const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
-    let baseQuery = `
-        SELECT
-        ${generateSelectColumns(ctx, columns)}
-        FROM
-        ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} t0 
-    `;
-  
-    tablesToJoin.forEach((table, index) => {
-        const tableAlias = `t${index + 1}`;
-        baseQuery += `
-            JOIN ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, table)} ${tableAlias}
-            ON ${joinOn(getPrimaryKeys(baseColumns(ctx), false), 't0', tableAlias)}\n
-        `;
-    });
-    return baseQuery;
-}
-
-const baseTables = ['statistics_pre_click', 'statistics_app', 'statistics_avg_cart', 'statistics_sales', 'statistics_revenue'];
+const baseTables = [
+  'statistics_pre_click', 'statistics_app', 'statistics_avg_cart',
+  'statistics_sales', 'statistics_revenue'
+];
 
 
 businessUnits.forEach(businessUnit => {
     // For each business unit, create a view.
     publish('stg_stats', {
         type: 'view',
-        schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
+        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`,
         assertions: {
             uniqueKey: uniqueAssertion,
             nonNull: nonNullAssertion
@@ -118,11 +99,12 @@ businessUnits.forEach(businessUnit => {
     }).query(ctx => {
         let unionQueries = [];
         
-        businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
+        businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
             // Generate JOIN queries for each account prefix.
-            let joinQuery = generateJoinQueryForPrefix(
-                ctx, columns, sourceSchemaSuffix, accountPrefix, baseTables,
-                businessUnit
+            let joinQuery = generateJoinQueryForAccounts(
+                ctx, generateSelectColumns(ctx, columns),
+                sourceSchemaSufix, accountPrefix, baseTables,
+                getPrimaryKeys(baseColumns(ctx), false), businessUnit
             );
             unionQueries.push(`(${joinQuery})`);
         });

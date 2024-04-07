@@ -1,6 +1,6 @@
 const {
     businessUnits,
-    sourceSchemaSuffix
+    sourceSchemaSufix
 } = require('config.js');
 const {
     createOrReplaceTableInplace,
@@ -43,7 +43,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy) {
         businessUnits.forEach(businessUnit => {
             // For each business unit, generate the union part
             // Note: Assuming businessUnit has a 'schemaPrefix' property
-            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${dimension}`, businessUnit, false);
+            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSufix, `stg_${dimension}`, businessUnit, false);
             unionParts.push(part);
         });
 
