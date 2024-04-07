@@ -33,7 +33,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy = '
             nonNull: nonNullAssertion
         },
         bigquery: {
-            clusterBy: custerBy
+            clusterBy: clusterBy
         },
         tags: ['silver', 'table', 'dim']
     }).query(ctx => {
