@@ -81,51 +81,55 @@ const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
 
-function generateJoinQuery(ctx, columns, sourceSchemaSuffix, tablesToJoin, uniqueAssertion, businessUnit) {
-  const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
-  let baseQuery = `
-    SELECT
-      ${generateSelectColumns(ctx, columns)}
-    FROM
-      ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} t0 
-  `;
+function generateJoinQueryForPrefix(ctx, columns, sourceSchemaSuffix, accountPrefix, baseTables, businessUnit) {
+    // Duplicate the logic to generate JOIN queries, now including the accountPrefix logic.
+    let tablesToJoin = baseTables.map(table => `${accountPrefix}_${table}`);
+    const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
+    let baseQuery = `
+        SELECT
+        ${generateSelectColumns(ctx, columns)}
+        FROM
+        ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} t0 
+    `;
   
-  tablesToJoin.forEach((table, index) => {
-      const tableAlias = `t${index + 1}`;
-      baseQuery += `
-        JOIN ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, table)} ${tableAlias}
-        ON ${joinOn(getPrimaryKeys(baseColumns(ctx), false), 't0', tableAlias)}\n
-      `;
-  });
-  return baseQuery;
+    tablesToJoin.forEach((table, index) => {
+        const tableAlias = `t${index + 1}`;
+        baseQuery += `
+            JOIN ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, table)} ${tableAlias}
+            ON ${joinOn(getPrimaryKeys(baseColumns(ctx), false), 't0', tableAlias)}\n
+        `;
+    });
+    return baseQuery;
 }
 
 const baseTables = ['statistics_pre_click', 'statistics_app', 'statistics_avg_cart', 'statistics_sales', 'statistics_revenue'];
 
-let joinTables = []
 
 businessUnits.forEach(businessUnit => {
-  businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
-    baseTables.forEach(table => {
-      joinTables.push(`${accountPrefix}_${table}`)  
-    })
-  });
-});
+    // For each business unit, create a view.
+    publish('stg_stats', {
+        type: 'view',
+        schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
+        assertions: {
+            uniqueKey: uniqueAssertion,
+            nonNull: nonNullAssertion
+        },
+        tags: ['staging', 'view', 'dim']
+    }).query(ctx => {
+        let unionQueries = [];
+        
+        businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
+            // Generate JOIN queries for each account prefix.
+            let joinQuery = generateJoinQueryForPrefix(
+                ctx, columns, sourceSchemaSuffix, accountPrefix, baseTables,
+                businessUnit
+            );
+            unionQueries.push(`(${joinQuery})`);
+        });
 
-businessUnits.forEach(businessUnit => {
-  publish('stg_stats', {
-      type: 'view',
-      schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
-      assertions: {
-          uniqueKey: uniqueAssertion,
-          nonNull: nonNullAssertion
-      },
-      tags: ['staging', 'view', 'dim']
-  }).query(ctx => generateJoinQuery(
-      ctx, columns, sourceSchemaSuffix,
-      joinTables,
-      uniqueAssertion, businessUnit
-  ))
+        // Combine all JOIN queries using UNION ALL.
+        return unionQueries.join(' UNION ALL ');
+    });
 });
 
 module.exports = {
