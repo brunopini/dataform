@@ -94,9 +94,9 @@ function generateUnionAllQuery(
   return unionAllQueryParts.join(" UNION ALL ");
 }
 
-function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPrefix,baseTables, onKeys, businessUnit) {
+function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPrefix, tableSuffixes, onKeys, baseTableAlias, businessUnit) {
   // Duplicate the logic to generate JOIN queries, now including the accountPrefix logic.
-  let tablesToJoin = baseTables.map(table => `${accountPrefix}_${table}`);
+  let tablesToJoin = tableSuffixes.map(table => `${accountPrefix}_${table}`);
   const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
   let baseQuery = `
       SELECT
@@ -109,7 +109,7 @@ function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPr
       const tableAlias = `t${index + 1}`;
       baseQuery += `
           JOIN ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSufix}`, table)} ${tableAlias}
-          ON ${joinOn(onKeys, 't0', tableAlias)}\n
+          ON ${joinOn(onKeys, baseTableAlias, tableAlias)}\n
       `;
   });
   return baseQuery;

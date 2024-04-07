@@ -104,7 +104,8 @@ businessUnits.forEach(businessUnit => {
             let joinQuery = generateJoinQueryForAccounts(
                 ctx, generateSelectColumns(ctx, columns),
                 sourceSchemaSufix, accountPrefix, baseTables,
-                getPrimaryKeys(baseColumns(ctx), false), businessUnit
+                getPrimaryKeys(baseColumns(ctx), false), 't0',
+                businessUnit
             );
             unionQueries.push(`(${joinQuery})`);
         });
