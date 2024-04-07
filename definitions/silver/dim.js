@@ -48,7 +48,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy) {
         });
 
         // Join all union parts with UNION ALL to form the complete query
-        return unionParts.join(" UNION ALL ");
+        return unionParts.join(' UNION ALL ');
     }).preOps(`
         DECLARE schema_is_set BOOL DEFAULT FALSE;
     `).postOps(ctx => `

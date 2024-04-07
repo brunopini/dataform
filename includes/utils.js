@@ -60,15 +60,53 @@ function removeTrailingComma(inputString) {
   return inputString.replace(regex, '');
 }
 
-function generateSimpleSelectStatement(ctx, columns, schema, table, distinct = false) {
+/**
+ * Generates a simple SQL SELECT statement based on the provided parameters.
+ * This function allows specifying columns, schema, table, distinct modifier, and conditions for the WHERE clause.
+ * The WHERE conditions can be provided as either a string or an array of condition strings.
+ *
+ * @param {Object} ctx - The context object containing the `ref` function to reference schema and table correctly.
+ * @param {Array|string} columns - An array of column names to select, or a single column name as a string.
+ * @param {string} schema - The schema name of the table to select from.
+ * @param {string} table - The table name to select from.
+ * @param {boolean} [distinct=false] - Optional. Specifies whether to add the DISTINCT keyword to the SELECT statement.
+ * @param {Array|string} [whereConditions=[]] - Optional. Conditions for the WHERE clause. 
+ *                                               Can be a single condition as a string, or an array of conditions. 
+ *                                               If a string is provided, it can optionally start with "WHERE". 
+ *                                               If an array is provided, each element should be a single condition string.
+ *
+ * @returns {string} A SQL SELECT statement as a string.
+ *
+ * @example
+ * // Returns: SELECT DISTINCT column1, column2 FROM schemaName.tableName WHERE column1 = 'value1' AND column2 > 10
+ * generateSelectStatement(ctx, ['column1', 'column2'], 'schemaName', 'tableName', true, ["column1 = 'value1'", "column2 > 10"]);
+ *
+ * @example
+ * // Returns: SELECT * FROM schemaName.tableName WHERE column1 = 'value1'
+ * generateSelectStatement(ctx, '*', 'schemaName', 'tableName', false, "column1 = 'value1'");
+ */
+function generateSelectStatement(
+    ctx, columns, schema, table, distinct = false, whereConditions = []) {
   // Assuming columns is an array of column names you want to select
-  const columnsPart = Array.isArray(columns) ? columns.join(", ") : columns;
-  return `SELECT ${distinct ? 'DISTINCT ' : ''}${columnsPart} FROM ${ctx.ref(schema, table)}`;
+  const columnsPart = Array.isArray(columns) ? columns.join(', ') : columns;
+
+  // Prepare the WHERE part
+  let wherePart = '';
+  if (typeof whereConditions === 'string' && whereConditions.trim() !== '') {
+    // If it's a non-empty string, directly use it, ensuring it starts with 'WHERE '
+    wherePart = whereConditions.trim().toUpperCase().startsWith('WHERE ') ? whereConditions.trim() : 'WHERE ' + whereConditions.trim();
+  } else if (Array.isArray(whereConditions) && whereConditions.length > 0) {
+    // If it's an array, join the conditions with ' AND ', prefixed by 'WHERE '
+    wherePart = 'WHERE ' + whereConditions.join(' AND ');
+  }
+
+  // Construct the SQL statement
+  return `SELECT ${distinct ? 'DISTINCT ' : ''}${columnsPart} FROM ${ctx.ref(schema, table)} ${wherePart}`;
 }
 
 function generateUnionAllQuery(
     ctx, columns, sourceSchemaSufix, sourceTableSufix, businessUnit,
-    accountsLevel = true, distinct = false) {
+    accountsLevel = true, distinct = false, whereConditions = []) {
   let unionAllQueryParts = [];
 
   const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`;
@@ -77,23 +115,24 @@ function generateUnionAllQuery(
     businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
       const sourceTableName = `${accountPrefix}_${sourceTableSufix}`;
       // Generate the SELECT statement for this table
-      const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
+      const selectStatement = generateSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
       // Add the SELECT statement to the parts array
       unionAllQueryParts.push(selectStatement);
     });
   } else {
     // If accountsLevel is false, generate a select statement without iterating over accounts
     const sourceTableName = `${sourceTableSufix}`;
-    const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
+    const selectStatement = generateSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
     unionAllQueryParts.push(selectStatement);
   }
 
   return unionAllQueryParts.join(" UNION ALL ");
 }
 
-function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPrefix, tableSuffixes, onKeys, baseTableAlias, businessUnit) {
-  // Duplicate the logic to generate JOIN queries, now including the accountPrefix logic.
-  let tablesToJoin = tableSuffixes.map(table => `${accountPrefix}_${table}`);
+function generateJoinQueryForAccounts(
+    ctx, columns, sourceSchemaSufix, tablePrefix, tableSuffixes, onKeys,
+    baseTableAlias, businessUnit) {
+  let tablesToJoin = tableSuffixes.map(table => `${tablePrefix}_${table}`);
   const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
   let baseQuery = `
       SELECT
@@ -119,7 +158,7 @@ module.exports = {
     joinOn,
     metricsTypeDeclarations,
     removeTrailingComma,
-    generateSimpleSelectStatement,
+    generateSelectStatement,
     generateUnionAllQuery,
     generateJoinQueryForAccounts
 };
