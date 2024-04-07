@@ -18,7 +18,7 @@ const nonClusteringDimensions = [
     'advertiser', 'category', 'channel', 'marketing_objective'
 ];
 
-function publishDimTableFromStagingViews(dimension, businessUnits, custerBy) {
+function publishDimTableFromStagingViews(dimension, businessUnits, clusterBy = '') {
     const {
         columns,
         uniqueAssertion,
@@ -52,7 +52,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits, custerBy) {
     }).preOps(`
         DECLARE schema_is_set BOOL DEFAULT FALSE;
     `).postOps(ctx => `
-        ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns))}
+        ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy)}
     `);
 }
 
