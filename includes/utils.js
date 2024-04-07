@@ -67,17 +67,14 @@ function generateSimpleSelectStatement(ctx, columns, tableName) {
   return `SELECT ${columnsPart} FROM ${ctx.ref(tableName)}`;
 }
 
-function generateUnionAllQuery(ctx, tableSuffix, columns) {
-  const businessUnits = dataform.projectConfig.vars.products;
-  const sourceSchemaSuffix = dataform.projectConfig.vars.sourceSchemaSuffix;
-
+function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnits) {
   let unionAllQueryParts = [];
 
   businessUnits.forEach(businessUnit => {
     const datasetName = `${businessUnit.datasetPrefix}_${sourceSchemaSuffix}`;
 
     businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
-      const tableName = `${accountPrefix}_${tableSuffix}`;
+      const tableName = `${accountPrefix}_${sourceTableSuffix}`;
       // Generate the full reference name including dataset for ctx.ref()
       const fullRefName = `${datasetName}.${tableName}`;
       // Generate the SELECT statement for this table

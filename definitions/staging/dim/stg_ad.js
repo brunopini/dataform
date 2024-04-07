@@ -4,10 +4,10 @@ const {
 } = require('config.js')
 const {
     extractAttribute,
+    generateUnionAllQuery,
 } = require('includes/utils.js');
 const {
     generateSelectColumns,
-    generateUnionAllQuery,
     getNotNullColumns,
     getPrimaryKeys,
 } = require('includes/schema.js');
@@ -44,7 +44,9 @@ const columns = (ctx) => [
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
+businessUnits.forEach(businessUnit => {
 
+})
 publish('stg_ad', {
     type: 'view',
     schema: '',
@@ -53,7 +55,7 @@ publish('stg_ad', {
         nonNull: nonNullAssertion
     },
     tags: ['staging', 'view', 'dim']
-}).query(ctx => generateUnionAllQuery(ctx, 'ads', generateSelectColumns(ctx, columns)))
+}).query(ctx => generateUnionAllQuery(ctx, generateSelectColumns(ctx, columns), sourceSchemaSuffix, 'ads', businessUnits))
 
 module.exports = {
     columns,

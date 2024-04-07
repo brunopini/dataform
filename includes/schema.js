@@ -196,7 +196,7 @@ function simpleDimSchema(primaryKey) {
 `}
 
 module.exports = {
-    generateSelectStatement: generateSelectColumns,
+    generateSelectColumns,
     generateSchemaDefinition,
     getPrimaryKeys,
     getNotNullColumns,
