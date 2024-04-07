@@ -61,27 +61,23 @@ function removeTrailingComma(inputString) {
   return inputString.replace(regex, '');
 }
 
-function generateSimpleSelectStatement(ctx, columns, tableName) {
+function generateSimpleSelectStatement(ctx, columns, schema, table) {
   // Assuming columns is an array of column names you want to select
   const columnsPart = Array.isArray(columns) ? columns.join(", ") : columns;
-  return `SELECT ${columnsPart} FROM ${ctx.ref(tableName)}`;
+  return `SELECT ${columnsPart} FROM ${ctx.ref(schema, table)}`;
 }
 
-function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnits) {
+function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit) {
   let unionAllQueryParts = [];
 
-  businessUnits.forEach(businessUnit => {
-    const datasetName = `${businessUnit.datasetPrefix}_${sourceSchemaSuffix}`;
+  const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
 
-    businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
-      const tableName = `${accountPrefix}_${sourceTableSuffix}`;
-      // Generate the full reference name including dataset for ctx.ref()
-      const fullRefName = `${datasetName}.${tableName}`;
-      // Generate the SELECT statement for this table
-      const selectStatement = generateSelectStatement(ctx, columns, fullRefName);
-      // Add the SELECT statement to the parts array
-      unionAllQueryParts.push(selectStatement);
-    });
+  businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
+    const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
+    // Generate the SELECT statement for this table
+    const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName);
+    // Add the SELECT statement to the parts array
+    unionAllQueryParts.push(selectStatement);
   });
 
   return unionAllQueryParts.join(" UNION ALL ");
@@ -92,7 +88,6 @@ module.exports = {
     dimPrimaryKey,
     extractAttribute,
     extractArrayAttribute,
-    // extractJsonAttribute,
     lookBackDate,
     joinOn,
     metricsTypeDeclarations,

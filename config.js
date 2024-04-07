@@ -1,9 +1,9 @@
-const sourceSchemaSuffix = "ab_criteo_marketing";
+const sourceSchemaSuffix = 'ab_criteo_marketing';
 
 const businessUnits = [
     {
-        schemaPreffix: "globoplay",
-        accountsTablePreffixes: ["account"]
+        schemaPreffix: 'globoplay',
+        accountsTablePreffixes: ['account']
     }
 ];
 

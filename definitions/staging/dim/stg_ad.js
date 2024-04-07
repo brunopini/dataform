@@ -45,17 +45,16 @@ const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
 businessUnits.forEach(businessUnit => {
-
+    publish('stg_ad', {
+        type: 'view',
+        schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
+        assertions: {
+            uniqueKey: uniqueAssertion,
+            nonNull: nonNullAssertion
+        },
+        tags: ['staging', 'view', 'dim']
+    }).query(ctx => generateUnionAllQuery(ctx, generateSelectColumns(ctx, columns), sourceSchemaSuffix, 'ads', businessUnit))
 })
-publish('stg_ad', {
-    type: 'view',
-    schema: '',
-    assertions: {
-        uniqueKey: uniqueAssertion,
-        nonNull: nonNullAssertion
-    },
-    tags: ['staging', 'view', 'dim']
-}).query(ctx => generateUnionAllQuery(ctx, generateSelectColumns(ctx, columns), sourceSchemaSuffix, 'ads', businessUnits))
 
 module.exports = {
     columns,
