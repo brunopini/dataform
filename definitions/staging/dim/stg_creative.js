@@ -35,7 +35,7 @@ const columns = (ctx) => [
     { name: author, type: 'STRING NOT NULL', alias: 'author' },
     { name: creativeDescription, type: 'STRING', alias: 'description' },
     { name: landingPageUrl, type: 'STRING', alias: 'lp_urls' },
-    { name: imageUrls, type: 'STRING', alias: 'image_urls' },
+    { name: imageUrls, type: 'ARRAY<STRING>', alias: 'image_urls' },
     { name: datasetId, type: 'STRING NOT NULL', alias: 'dataset_id' },
     { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
         'PRIMARY KEY',
