@@ -161,12 +161,19 @@ function getNotNullColumns(columnsDefinition) {
  * and which columns are defined as PRIMARY KEYS.
  * @returns {Array<string>} A list of column aliases or names that are marked as primary keys.
  */
-function getPrimaryKeys(columnsDefinition) {
+function getPrimaryKeys(columnsDefinition, alias = true) {
     const ctx = { ref: (tableName) => tableName }; // Mocked ctx
     const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
+
     return columns
         .filter(col => col.constraints && col.constraints.some(constraint => constraint.includes('PRIMARY KEY')))
-        .map(col => col.alias || col.name);
+        .map(col => {
+            // Extract original column name from within any function calls
+            const originalColumnName = col.name.replace(/.*\(([^)]+)\).*/, '$1').trim();
+
+            // Return alias, original column name within function, or plain name based on alias flag
+            return alias ? col.alias || originalColumnName : originalColumnName;
+        });
 }
 
 /**

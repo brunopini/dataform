@@ -12,7 +12,7 @@ const {
 
 
 const dimensions = [
-    'advertiser', 'campaign', 'adset', 'coupon', 'creative',
+    'advertiser', 'campaign', 'adset', 'coupon', 'ad', 'creative',
     'category', 'channel', 'marketing_objective'
 ];
 
