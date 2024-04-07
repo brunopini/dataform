@@ -63,8 +63,8 @@ const columns = (ctx) => [
     { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
         'PRIMARY KEY',
         `FOREIGN KEY ${ctx.ref('dim_advertiser')}(id)`] },
-    { name: startDate, type: 'TIMESTAMP NOT NULL', alias: 'start_date' },
-    { name: endDate, type: 'TIMESTAMP NOT NULL', alias: 'end_date' },
+    { name: startDate, type: 'TIMESTAMP', alias: 'start_date' },
+    { name: endDate, type: 'TIMESTAMP', alias: 'end_date' },
     { name: activationStatus, type: 'STRING NOT NULL', alias: 'activation_status' },
     { name: deliveryStatus, type: 'STRING NOT NULL', alias: 'delivery_status' },
     { name: frequencyCap, type: 'NUMERIC', alias: 'frequency_cap' },
