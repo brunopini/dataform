@@ -78,14 +78,14 @@ function generateUnionAllQuery(
     businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
       const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
       // Generate the SELECT statement for this table
-      const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName);
+      const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
       // Add the SELECT statement to the parts array
       unionAllQueryParts.push(selectStatement);
     });
   } else {
     // If accountsLevel is false, generate a select statement without iterating over accounts
     const sourceTableName = `${sourceTableSuffix}`;
-    const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName);
+    const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
     unionAllQueryParts.push(selectStatement);
   }
 

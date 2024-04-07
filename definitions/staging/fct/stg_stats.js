@@ -100,6 +100,17 @@ function generateJoinQuery(ctx, columns, sourceSchemaSuffix, tablesToJoin, uniqu
   return baseQuery;
 }
 
+const baseTables = ['statistics_pre_click', 'statistics_app', 'statistics_avg_cart', 'statistics_sales', 'statistics_revenue'];
+
+let joinTables = []
+
+businessUnits.forEach(businessUnit => {
+  businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
+    baseTables.forEach(table => {
+      joinTables.push(`${accountPrefix}_${table}`)  
+    })
+  });
+});
 
 businessUnits.forEach(businessUnit => {
   publish('stg_stats', {
@@ -112,7 +123,7 @@ businessUnits.forEach(businessUnit => {
       tags: ['staging', 'view', 'dim']
   }).query(ctx => generateJoinQuery(
       ctx, columns, sourceSchemaSuffix,
-      ['account_statistics_pre_click', 'account_statistics_app', 'account_statistics_avg_cart', 'account_statistics_sales', 'account_statistics_revenue'],
+      joinTables,
       uniqueAssertion, businessUnit
   ))
 });

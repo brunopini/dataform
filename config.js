@@ -4,7 +4,11 @@ const targetSchemaSuffix = 'criteo_marketing';
 const businessUnits = [
     {
         schemaPreffix: 'globoplay',
-        accountsTablePreffixes: ['account']
+        accountsTablePreffixes: ['account', 'account2']
+    },
+    {
+        schemaPreffix: 'product2',
+        accountsTablePreffixes: ['account3']
     }
 ];
 
