@@ -1,5 +1,6 @@
 const {
-    businessUnits
+    businessUnits,
+    sourceSchemaSuffix
 } = require('config.js');
 const {
     createOrReplaceTableInplace,
@@ -32,6 +33,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits) {
         bigquery: {
             clusterBy: ['advertiser_id']
         },
+        tags: ['silver', 'table', 'dim']
     }).query(ctx => {
         // Create an array to hold the union parts for each business unit
         let unionParts = [];
@@ -39,7 +41,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits) {
         businessUnits.forEach(businessUnit => {
             // For each business unit, generate the union part
             // Note: Assuming businessUnit has a 'schemaPrefix' property
-            const part = generateUnionAllQuery(ctx, '*', `stg_${dimension}`, `stg_${dimension}`, businessUnit, false);
+            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${dimension}`, businessUnit, false);
             unionParts.push(part);
         });
 
