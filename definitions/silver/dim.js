@@ -11,12 +11,14 @@ const {
 } = require('includes/utils.js');
 
 
-const dimensions = [
-    'advertiser', 'campaign', 'adset', 'coupon', 'ad', 'creative',
-    'category', 'channel', 'marketing_objective'
+const clusteringDimensions = [
+    'campaign', 'adset', 'coupon', 'ad', 'creative',
+];
+const nonClusteringDimensions = [
+    'advertiser', 'category', 'channel', 'marketing_objective'
 ];
 
-function publishDimTableFromStagingViews(dimension, businessUnits) {
+function publishDimTableFromStagingViews(dimension, businessUnits, custerBy) {
     const {
         columns,
         uniqueAssertion,
@@ -31,7 +33,7 @@ function publishDimTableFromStagingViews(dimension, businessUnits) {
             nonNull: nonNullAssertion
         },
         bigquery: {
-            clusterBy: ['advertiser_id']
+            clusterBy: custerBy
         },
         tags: ['silver', 'table', 'dim']
     }).query(ctx => {
@@ -54,6 +56,11 @@ function publishDimTableFromStagingViews(dimension, businessUnits) {
     `);
 }
 
-dimensions.forEach(dimension => {
+clusteringDimensions.forEach(dimension => {
+    publishDimTableFromStagingViews(dimension, businessUnits, ['advertiser_id']);
+});
+
+nonClusteringDimensions.forEach(dimension => {
     publishDimTableFromStagingViews(dimension, businessUnits);
 });
+
