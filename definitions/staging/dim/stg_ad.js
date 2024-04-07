@@ -1,4 +1,8 @@
 const {
+    sourceSchemaSuffix,
+    businessUnits
+} = require('config.js')
+const {
     extractAttribute,
 } = require('includes/utils.js');
 const {

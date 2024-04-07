@@ -1,3 +1,9 @@
+const {
+    sourceSchemaSuffix,
+    businessUnits
+} = require('config.js')
+
+
 const sourceStreams = [
     'ads',
     'adsets',
@@ -18,8 +24,6 @@ const sourceStreams = [
     'user_agg_campaign_year',
 ];
 
-const businessUnits = dataform.projectConfig.vars.products;
-const sourceSchemaSuffix = dataform.projectConfig.vars.sourceSchemaSuffix;
 
 businessUnits.forEach(businessUnit => {
     const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
