@@ -1,7 +1,10 @@
 const {
   sourceSchemaSuffix,
   businessUnits
-} = require('config.js')
+} = require('config.js');
+const {
+  generateUnionAllQuery,
+} = require('includes/utils.js');
 const {
   simpleDimColumns,
   getNotNullColumns,

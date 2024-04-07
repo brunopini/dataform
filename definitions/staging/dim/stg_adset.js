@@ -1,9 +1,10 @@
 const {
     sourceSchemaSuffix,
     businessUnits
-} = require('config.js')
+} = require('config.js');
 const {
     extractAttribute,
+    generateUnionAllQuery
     // extractArrayAttribute,
 } = require('includes/utils.js');
 const {

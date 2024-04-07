@@ -1,7 +1,7 @@
 const {
     sourceSchemaSuffix,
     businessUnits
-} = require('config.js')
+} = require('config.js');
 const {
     extractAttribute,
     generateUnionAllQuery,
