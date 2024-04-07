@@ -3,8 +3,6 @@ const {
   businessUnits
 } = require('config.js');
 const {
-  extractAttribute,
-  generateUnionAllQuery,
   joinOn,
 } = require('includes/utils.js');
 const {
@@ -13,14 +11,11 @@ const {
   generateSelectColumns,
 } = require('includes/schema.js');
 const {
-  primaryKeyRaw,
-  statsSelectDimensions,
-  viewConfig,
-  columns
+  baseColumns
 } = require('includes/stats.js');
 
 
-const columns = (ctx) => columns(ctx, 'dlv.').push([
+const columns = (ctx) => baseColumns(ctx).concat([
   { name: 'CAST(dlv.AdvertiserCost AS NUMERIC)', type: 'NUMERIC', alias: 'advertiser_cost' },
   { name: 'CAST(dlv.Clicks AS NUMERIC)', type: 'NUMERIC', alias: 'clicks' },
   { name: 'CAST(dlv.Displays AS NUMERIC)', type: 'NUMERIC', alias: 'displays' },
@@ -85,27 +80,8 @@ const columns = (ctx) => columns(ctx, 'dlv.').push([
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
-const joinQuery = (ctx) => `
-  SELECT
-    ${generateSelectColumns(ctx, columns)}
-  FROM
-    ${ctx.ref('statistics_pre_click')} dlv
-  JOIN
-    ${ctx.ref('statistics_app')} app
-    ON ${joinOn(uniqueAssertion, 'dlv', 'app')}
-  JOIN
-    ${ctx.ref('statistics_avg_cart')} crt
-    ON ${joinOn(uniqueAssertion, 'dlv', 'crt')}
-  JOIN
-    ${ctx.ref('statistics_sales')} sls
-    ON ${joinOn(uniqueAssertion, 'dlv', 'sls')}
-  JOIN
-    ${ctx.ref('statistics_revenue')} rvn
-    ON ${joinOn(uniqueAssertion, 'dlv', 'rvn')}
-`
 
 function generateJoinQuery(ctx, columns, sourceSchemaSuffix, tablesToJoin, uniqueAssertion, businessUnit) {
-  // let joinQueryParts = [];
   const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
   let baseQuery = `SELECT ${generateSelectColumns(ctx, columns)} FROM ${ctx.ref(`${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`, baseTable)} `;
   
@@ -119,8 +95,9 @@ function generateJoinQuery(ctx, columns, sourceSchemaSuffix, tablesToJoin, uniqu
   return baseQuery;
 }
 
+
 businessUnits.forEach(businessUnit => {
-  publish('stg_ad', {
+  publish('stg_stats', {
       type: 'view',
       schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
       assertions: {
@@ -129,7 +106,9 @@ businessUnits.forEach(businessUnit => {
       },
       tags: ['staging', 'view', 'dim']
   }).query(ctx => generateJoinQuery(
-      ctx, columns, businessUnit, sourceSchemaSuffix, ['statistics_pre_click', 'statistics_app', 'statistics_avg_cart', 'statistics_sales', 'statistics_revenue'], uniqueAssertion
+      ctx, columns, sourceSchemaSuffix,
+      ['account_statistics_pre_click', 'account_statistics_app', 'account_statistics_avg_cart', 'account_statistics_sales', 'account_statistics_revenue'],
+      uniqueAssertion, businessUnit
   ))
 });
 

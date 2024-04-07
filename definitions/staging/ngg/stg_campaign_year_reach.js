@@ -1,23 +1,23 @@
-const {
-    nggReachSelect
-} = require('includes/reach.js');
+// const {
+//     nggReachSelect
+// } = require('includes/reach.js');
 
-// Column mappings
-const sourceEntity = 'CampaignId';
-const targetTimeframe = 'year';
-const sourceTimeframe = 'Year';
+// // Column mappings
+// const sourceEntity = 'CampaignId';
+// const targetTimeframe = 'year';
+// const sourceTimeframe = 'Year';
 
-// Static
-const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
+// // Static
+// const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
 
-publish('stg_campaign_year_reach', {
-    type: 'view',
-    assertions: {
-        uniqueKey: primaryKey,
-        nonNull: primaryKey
-    },
-    tags: ['staging', 'view', 'dim', 'ngg']
-}).query(ctx => `
-    SELECT ${nggReachSelect(sourceEntity, sourceTimeframe, targetTimeframe)}
-    FROM ${ctx.ref('user_agg_campaign_year')}
-`)
+// publish('stg_campaign_year_reach', {
+//     type: 'view',
+//     assertions: {
+//         uniqueKey: primaryKey,
+//         nonNull: primaryKey
+//     },
+//     tags: ['staging', 'view', 'dim', 'ngg']
+// }).query(ctx => `
+//     SELECT ${nggReachSelect(sourceEntity, sourceTimeframe, targetTimeframe)}
+//     FROM ${ctx.ref('user_agg_campaign_year')}
+// `)

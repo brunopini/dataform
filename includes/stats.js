@@ -56,7 +56,7 @@ function statsSchemaDimensions(metricsSchema, ctx) {
     `
 };
 
-const columns = (ctx, tableAlias = '') => [
+const baseColumns = (ctx, tableAlias = '') => [
     { name: `DATE(${tableAlias}Day)`, type: 'STRING NOT NULL', alias: 'date', constraints: [
         'PRIMARY KEY'] },
     { name: `${tableAlias}AdId`, type: 'STRING NOT NULL', alias: 'ad_id', constraints: [
@@ -112,5 +112,5 @@ module.exports = {
     tableConfig,
     statsSelectDimensions,
     statsSchemaDimensions,
-    columns
+    baseColumns
 };
