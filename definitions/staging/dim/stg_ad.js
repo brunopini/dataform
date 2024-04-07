@@ -29,8 +29,8 @@ const columns = (ctx) => [
         'PRIMARY KEY'] },
     { name: adName, type: 'STRING NOT NULL', alias: 'name' },
     { name: inventoryType, type: 'STRING NOT NULL', alias: 'inventory_type' },
-    { name: startDate, type: 'TIMESTAMP NOT NULL', alias: 'start_date' },
-    { name: endDate, type: 'TIMESTAMP NOT NULL', alias: 'end_date' },
+    { name: startDate, type: 'TIMESTAMP', alias: 'start_date' },
+    { name: endDate, type: 'TIMESTAMP', alias: 'end_date' },
     { name: adDescription, type: 'STRING', alias: 'description' },
     { name: advertiserId, type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
         'PRIMARY KEY',
