@@ -1,5 +1,5 @@
 {
-  "defaultSchema": "maos_master_raw",
+  "defaultSchema": "criteo_marketing",
   "assertionSchema": "dataform_assertions",
   "warehouse": "bigquery",
   "defaultDatabase": "globo-maos-d",

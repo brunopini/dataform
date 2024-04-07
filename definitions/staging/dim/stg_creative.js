@@ -42,14 +42,17 @@ const columns = (ctx) => [
         `FOREIGN KEY ${ctx.ref('dim_advertiser')}(id)`] },
 ];
 
+const uniqueAssertion = getPrimaryKeys(columns);
+const nonNullAssertion = getNotNullColumns(columns);
+
 
 businessUnits.forEach(businessUnit => {
     publish('stg_creative', {
         type: 'view',
         schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
         assertions: {
-            uniqueKey: getPrimaryKeys(columns),
-            nonNull: getNotNullColumns(columns)
+            uniqueKey: uniqueAssertion,
+            nonNull: nonNullAssertion
         },
         tags: ['staging', 'view', 'dim']
     }).query(ctx => generateUnionAllQuery(
@@ -59,5 +62,7 @@ businessUnits.forEach(businessUnit => {
 })
 
 module.exports = {
-    columns
+    columns,
+    uniqueAssertion,
+    nonNullAssertion
 }

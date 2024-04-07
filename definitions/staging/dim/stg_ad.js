@@ -44,6 +44,7 @@ const columns = (ctx) => [
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
 
+
 businessUnits.forEach(businessUnit => {
     publish('stg_ad', {
         type: 'view',

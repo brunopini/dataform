@@ -67,18 +67,25 @@ function generateSimpleSelectStatement(ctx, columns, schema, table) {
   return `SELECT ${columnsPart} FROM ${ctx.ref(schema, table)}`;
 }
 
-function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit) {
+function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit, accountsLevel = true) {
   let unionAllQueryParts = [];
 
   const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
 
-  businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
-    const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
-    // Generate the SELECT statement for this table
+  if (accountsLevel) {
+    businessUnit.accountsTablePreffixes.forEach(accountPrefix => {
+      const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
+      // Generate the SELECT statement for this table
+      const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName);
+      // Add the SELECT statement to the parts array
+      unionAllQueryParts.push(selectStatement);
+    });
+  } else {
+    // If accountsLevel is false, generate a select statement without iterating over accounts
+    const sourceTableName = `${sourceTableSuffix}`;
     const selectStatement = generateSimpleSelectStatement(ctx, columns, schemaName, sourceTableName);
-    // Add the SELECT statement to the parts array
     unionAllQueryParts.push(selectStatement);
-  });
+  }
 
   return unionAllQueryParts.join(" UNION ALL ");
 }

@@ -80,14 +80,17 @@ const columns = (ctx) => [
     { name: budgetStrategy, type: 'STRING', alias: 'budget_strategy' },
 ];
 
+const uniqueAssertion = getPrimaryKeys(columns);
+const nonNullAssertion = getNotNullColumns(columns);
+
 
 businessUnits.forEach(businessUnit => {
     publish('stg_adset', {
         type: 'view',
         schema: `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`,
         assertions: {
-            uniqueKey: getPrimaryKeys(columns),
-            nonNull: getNotNullColumns(columns)
+            uniqueKey: uniqueAssertion,
+            nonNull: nonNullAssertion
         },
         tags: ['staging', 'view', 'dim']
     }).query(ctx => generateUnionAllQuery(
@@ -98,5 +101,7 @@ businessUnits.forEach(businessUnit => {
 
 
 module.exports = {
-    columns
+    columns,
+    uniqueAssertion,
+    nonNullAssertion
 }
