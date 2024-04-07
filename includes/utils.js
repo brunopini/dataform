@@ -1,10 +1,7 @@
-const clusterBy = "advertiser_id";
-
 const { 
   lookBackDays
 } = require('config.js');
 
-// const dimPrimaryKey = ["id", "advertiser_id"];
 
 function extractAttribute(attribute) {
     return `JSON_EXTRACT_SCALAR(attributes, '$.${attribute}')`;
@@ -116,8 +113,6 @@ function generateJoinQueryForAccounts(ctx, columns, sourceSchemaSufix, accountPr
 }
 
 module.exports = {
-    clusterBy,
-    // dimPrimaryKey,
     extractAttribute,
     extractArrayAttribute,
     lookBackDate,

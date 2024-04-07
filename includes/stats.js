@@ -1,41 +1,12 @@
 const {
     targetSchemaSufix
 } = require('config.js');
-// const {
-//     lookBackDate,
-//     clusterBy,
-// } = require('includes/utils.js');
 
 
-// const primaryKeyRaw = ["Day", "AdId", "AdvertiserId", "CouponId", "ChannelId", "Device", "MarketingObjectiveId", "Os"];
 const primaryKey = [
     'date', 'ad_id', 'advertiser_id', 'coupon_id', 'channel_id',
     'device', 'marketing_objective_id', 'os'
 ];
-// const nonNullAssert = ["date", "ad_id", "adset_id", "advertiser_id", "campaign_id", "category_id", "channel_id", "coupon_id", "currency", "device", "marketing_objective_id", "os"];
-
-// const viewConfig = {
-//     type: 'view',
-//     assertions: {
-//         uniqueKey: primaryKey,
-//         nonNull: nonNullAssert
-//     },
-//     tags: ['staging', 'view']
-// };
-
-// const tableConfig = {
-//     type: "incremental",
-//     uniqueKey: primaryKey,
-//     assertions: {
-//         uniqueKey: primaryKey,
-//         nonNull: nonNullAssert,
-//     },
-//     bigquery: {
-//         clusterBy: [clusterBy],
-//         partitionBy: "date",
-//         updatePartitionFilter: `date >= ${lookBackDate('DATE(CURRENT_TIMESTAMP())')}`
-//     }
-// };
 
 function statsSchemaDimensions(metricsSchema, ctx) {
     return `
@@ -114,9 +85,6 @@ function statsSelectDimensions(tableAlias = '') {
 }
 
 module.exports = {
-    // primaryKeyRaw,
-    // viewConfig,
-    // tableConfig,
     statsSelectDimensions,
     statsSchemaDimensions,
     baseColumns
