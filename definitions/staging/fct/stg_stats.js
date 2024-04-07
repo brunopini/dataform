@@ -95,7 +95,7 @@ businessUnits.forEach(businessUnit => {
             uniqueKey: uniqueAssertion,
             nonNull: nonNullAssertion
         },
-        tags: ['staging', 'view', 'dim']
+        tags: ['staging', 'view', 'fct']
     }).query(ctx => {
         let unionQueries = [];
         

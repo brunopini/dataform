@@ -14,11 +14,11 @@ const {
     columns,
     uniqueAssertion,
     nonNullAssertion
-} = require(`definitions/staging/dim/stg_stats.js`);
+} = require(`definitions/staging/fct/stg_stats.js`);
 
 
-const clusterBy = uniqueAssertion;
 const partitionBy = 'date';
+const clusterBy = ['advertiser_id', 'campaign_id', 'adset_id', 'ad_id'];
 
 
 // Assume businessUnits is an array of business unit objects, each with schemaPrefix property
@@ -32,7 +32,7 @@ publish(`fct_stats`, {
     bigquery: {
         clusterBy: clusterBy,
         partitionBy: partitionBy,
-        updatePartitionFilter: `${partitionBy} >= ${lookBackDate}`
+        updatePartitionFilter: `${partitionBy} >= ${lookBackDate('CURRENT_TIMESTAMP()')}`
     },
     tags: ['silver', 'table', 'fct', 'incremental']
 }).query(ctx => {
@@ -48,7 +48,7 @@ publish(`fct_stats`, {
 
     // Join all union parts with UNION ALL to form the complete query
     return unionParts.join(' UNION ALL ');
-}).preOps(`
+}).preOps(ctx => `
     DECLARE insert_date_checkpoint DEFAULT (
     ${
         ctx.when(ctx.incremental(),

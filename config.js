@@ -5,11 +5,7 @@ const lookBackDays = '30';
 const businessUnits = [
     {
         schemaPrefix: 'globoplay',
-        accountsTablePrefixes: ['account', 'account2']
-    },
-    {
-        schemaPrefix: 'product2',
-        accountsTablePrefixes: ['account3']
+        accountsTablePrefixes: ['account',]
     }
 ];
 
