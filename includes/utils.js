@@ -61,13 +61,15 @@ function removeTrailingComma(inputString) {
   return inputString.replace(regex, '');
 }
 
-function generateSimpleSelectStatement(ctx, columns, schema, table) {
+function generateSimpleSelectStatement(ctx, columns, schema, table, distinct = false) {
   // Assuming columns is an array of column names you want to select
   const columnsPart = Array.isArray(columns) ? columns.join(", ") : columns;
-  return `SELECT ${columnsPart} FROM ${ctx.ref(schema, table)}`;
+  return `SELECT ${distinct ? 'DISTINCT ' : ''}${columnsPart} FROM ${ctx.ref(schema, table)}`;
 }
 
-function generateUnionAllQuery(ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit, accountsLevel = true) {
+function generateUnionAllQuery(
+    ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit,
+    accountsLevel = true, distinct = false) {
   let unionAllQueryParts = [];
 
   const schemaName = `${businessUnit.schemaPreffix}_${sourceSchemaSuffix}`;
