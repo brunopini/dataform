@@ -36,7 +36,7 @@ businessUnits.forEach(businessUnit => {
         tags: ['staging', 'view', 'ngg']
     }).query(ctx => generateUnionAllQuery( // Union all accounts per business unit.
         ctx, generateSelectColumns(ctx, columns),
-        sourceSchemaSuffix, `user_agg_${entityTableComponent}_${timeframeTableComponent}`, businessUnit)
+        sourceSchemaSuffix, 'statistics_user_agg', businessUnit)
     )
 });
 
