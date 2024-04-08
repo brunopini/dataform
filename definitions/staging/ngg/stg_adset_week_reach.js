@@ -1,23 +1,50 @@
-// const {
-//     nggReachSelect
-// } = require('includes/reach.js');
+const {
+    sourceSchemaSuffix,
+    businessUnits
+} = require('config.js');
+const {
+    generateUnionAllQuery,
+    mockCtx,
+} = require("includes/utils.js");
+const {
+    getNotNullColumns,
+    getPrimaryKeys,
+    generateSelectColumns
+} = require('includes/schema.js');
+const {
+    columns
+} = require('includes/reach.js');
 
-// // Column mappings
-// const sourceEntity = 'AdsetId';
-// const targetTimeframe = 'week';
-// const sourceTimeframe = 'Week';
 
-// // Static
-// const primaryKey = [targetTimeframe, 'id', 'advertiser_id'];
+const entity = 'Adset';
+const timeframe = 'Week';
 
-// publish('stg_adset_week_reach', {
-//     type: 'view',
-//     assertions: {
-//         uniqueKey: primaryKey,
-//         nonNull: primaryKey
-//     },
-//     tags: ['staging', 'view', 'dim', 'ngg']
-// }).query(ctx => `
-//     SELECT ${nggReachSelect(sourceEntity, sourceTimeframe, targetTimeframe)}
-//     FROM ${ctx.ref('user_agg_adset_week')}
-// `)
+mockColumns = columns(mockCtx, entity, timeframe);
+
+const uniqueAssertion = getPrimaryKeys(mockColumns);
+const nonNullAssertion = getNotNullColumns(mockColumns);
+
+
+businessUnits.forEach(businessUnit => {
+    const entityTableComponent = entity.toLowerCase();
+    const timeframeTableComponent = timeframe.toLowerCase();
+
+    publish(`stg_${entityTableComponent}_${timeframeTableComponent}_reach`, {
+        type: 'view',
+        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
+        assertions: {
+            uniqueKey: uniqueAssertion,
+            nonNull: nonNullAssertion
+        },
+        tags: ['staging', 'view', 'ngg']
+    }).query(ctx => generateUnionAllQuery(
+        ctx, generateSelectColumns(ctx, columns(ctx, entity, timeframe)),
+        sourceSchemaSuffix, `user_agg_${entityTableComponent}_${timeframeTableComponent}`, businessUnit)
+    )
+})
+
+module.exports = {
+    columns,
+    uniqueAssertion,
+    nonNullAssertion
+}

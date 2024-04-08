@@ -16,8 +16,8 @@ const {
 } = require('includes/reach.js');
 
 
-const entity = 'Adset'
-const timeframe = 'Month'
+const entity = 'Adset';
+const timeframe = 'Month';
 
 mockColumns = columns(mockCtx, entity, timeframe);
 
