@@ -54,9 +54,32 @@ function generateSelectColumns(ctx, columnsDefinition) {
  * 
  * @returns {string} A string representing the SQL schema definition, including all column definitions and constraints.
  */
-function generateSchemaDefinition(ctx, columnsDefinition) {
-    // Determine if columnsDefinition is a function and call it with ctx, else use it directly
-    const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
+function generateSchemaDefinition(ctx, columnsDefinition, nggEntity = '', nggTimeframe = '') {
+    // Determine if columnsDefinition is a function
+    if (typeof columnsDefinition === 'function') {
+        // Check if nggEntity and nggTimeframe are provided
+        if (nggEntity !== '' && nggTimeframe !== '') {
+            // Call columnsDefinition with ctx, nggEntity, and nggTimeframe
+            const columns = columnsDefinition(ctx, nggEntity, nggTimeframe);
+            return {
+                // Assuming you want to return or do something with columns here
+                columns,
+            };
+        } else {
+            // Call columnsDefinition with just ctx
+            const columns = columnsDefinition(ctx);
+            return {
+                // Assuming you want to return or do something with columns here
+                columns,
+            };
+        }
+    } else {
+        // Use columnsDefinition directly if it's not a function
+        return {
+            // Assuming columnsDefinition is an array or similar and you want to return it directly
+            columns: columnsDefinition,
+        };
+    }
 
   
     let schemaParts = columns.map(col => {

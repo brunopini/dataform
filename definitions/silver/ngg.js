@@ -46,6 +46,6 @@ const tableNature = 'ngg';
 const incremental = true;
 
 
-nggTables.forEach(fctTable => {
-    publishSilverTableFromStagingViews(fctTable, tableNature, incremental)
+nggTables.forEach(nggTable => {
+    publishSilverTableFromStagingViews(nggTable, tableNature, incremental)
 })

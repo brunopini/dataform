@@ -15,12 +15,20 @@ const {
 function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremental = false, additionalTags = []) {
     const tableSuffix = tableConfig.suffix;
     const definitionsPath = `definitions/staging/${tableNature}/stg_${tableSuffix}.js`;
-    const {
-        columns,
+    let {
+        columns, // This might be either an array or a function
         uniqueAssertion,
         nonNullAssertion
     } = require(definitionsPath);
-  
+
+    if (
+        typeof tableNature === 'string' && tableNature === 'ngg' && typeof columns === 'function'
+        && tableConfig.nggEntity && tableConfig.nggTimeframe
+    ) {
+        const originalColumns = columns; // Save the original columns function
+        columns = (ctx) => originalColumns(ctx, tableConfig.suffix.split('_')[0], tableConfig.partitionBy);
+    }
+
     const clusterBy = tableConfig.clusterBy
     const partitionBy = tableConfig.partitionBy; // Will be undefined for dimTables not designed for incrementality
   
