@@ -114,7 +114,7 @@ function createOrReplaceTableInplace(ctx, schemaDefinition, clusterBy = '', part
     const [_, dataset, table] = tableDeconstruct;
 
     const partitionStatement = partitionBy !== '' ? `PARTITION BY ${partitionBy}` : '';
-    const clusterStatement = clusterBy !== '' ? `CLUSTER BY ${clusterBy}` : '';
+    const clusterStatement = (Array.isArray(clusterBy) ? clusterBy.join(', ') : clusterBy) !== '' ? `CLUSTER BY ${Array.isArray(clusterBy) ? clusterBy.join(', ') : clusterBy}` : '';
 
     return `
         SET schema_is_set = (

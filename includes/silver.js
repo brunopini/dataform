@@ -21,7 +21,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableType, isIncrementa
         nonNullAssertion
     } = require(definitionsPath);
   
-    const clusterBy = tableConfig.clusterBy;
+    const clusterBy = tableConfig.clusterBy
     const partitionBy = tableConfig.partitionBy; // Will be undefined for dimTables not designed for incrementality
   
     // Combine base tags with additionalTags
@@ -41,8 +41,10 @@ function publishSilverTableFromStagingViews(tableConfig, tableType, isIncrementa
   
     // Adjust the publish configuration for incremental tables
     if (isIncremental) {
+        publishConfig.uniqueKey = uniqueAssertion
         publishConfig.bigquery.partitionBy = partitionBy;
         publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate('CURRENT_TIMESTAMP()')}`;
+        tags.push('incremental');
     }
   
     publish(`${tableType}_${tableSuffix}`, publishConfig)
