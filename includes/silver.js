@@ -45,12 +45,19 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
         },
         tags: tags
     };
+
+    let partitionFilterCondition;
   
     // Adjust the publish configuration for incremental tables
     if (isIncremental) {
         publishConfig.uniqueKey = uniqueAssertion
         publishConfig.bigquery.partitionBy = partitionBy;
-        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate('CURRENT_TIMESTAMP()')}`;
+        if (partitionBy === 'date') {
+            partitionFilterCondition = `${lookBackDate('CURRENT_TIMESTAMP()')}`;
+        } else {
+            partitionFilterCondition = `${lookBackDate(`TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 ${partitionBy.toUpperCase()}`)}`;
+        }
+        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${partitionFilterCondition}`;
         tags.push('incremental');
     }
   
