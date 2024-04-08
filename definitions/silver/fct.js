@@ -21,15 +21,16 @@ const fctTables = [
 ];
 
 
-fctTables.forEach(table => {
-    const tableSufix = table.sufix;
+function publishFctTableFromStagingViews(fctTable) {
+    const tableSufix = fctTable.sufix;
     const {
         columns,
         uniqueAssertion,
         nonNullAssertion
     } = require(`definitions/staging/fct/stg_${tableSufix}.js`);
-    const partitionBy = table.partitionBy;
-    const clusterBy = table.clusterBy;
+
+    const partitionBy = fctTable.partitionBy;
+    const clusterBy = fctTable.clusterBy;
 
     // Assume businessUnits is an array of business unit objects, each with schemaPrefix property
     publish(`fct_${tableSufix}`, {
@@ -70,4 +71,8 @@ fctTables.forEach(table => {
     `).postOps(ctx => `
         ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy)}
     `);
+}
+
+fctTables.forEach(fctTable => {
+    publishFctTableFromStagingViews(fctTable)
 })
