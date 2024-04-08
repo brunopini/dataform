@@ -1,6 +1,6 @@
 const {
     businessUnits,
-    sourceSchemaSufix
+    sourceSchemaSuffix
 } = require('config.js');
 const {
     createOrReplaceTableInplace,
@@ -52,17 +52,17 @@ const dimTables = [
 
 
 function publishDimTableFromStagingViews(dimTable) {
-    const tableSufix = dimTable.sufix;
+    const tableSuffix = dimTable.sufix;
     const {
         columns,
         uniqueAssertion,
         nonNullAssertion
-    } = require(`definitions/staging/dim/stg_${tableSufix}.js`);
+    } = require(`definitions/staging/dim/stg_${tableSuffix}.js`);
 
-    const clusterBy = dimTable.clusterBy;
+    const clusterBy = dimTable.clusterBy != [] ? dimTable.clusterBy : '';
 
     // Assume businessUnits is an array of business unit objects, each with schemaPrefix property
-    publish(`dim_${tableSufix}`, {
+    publish(`dim_${tableSuffix}`, {
         type: 'table',
         assertions: {
             uniqueKey: uniqueAssertion,
@@ -79,7 +79,7 @@ function publishDimTableFromStagingViews(dimTable) {
         businessUnits.forEach(businessUnit => {
             // For each business unit, generate the union part
             // Note: Assuming businessUnit has a 'schemaPrefix' property
-            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSufix, `stg_${tableSufix}`, businessUnit, false);
+            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${tableSuffix}`, businessUnit, false);
             unionParts.push(part);
         });
 

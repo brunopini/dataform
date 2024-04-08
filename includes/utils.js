@@ -105,15 +105,15 @@ function generateSelectStatement(
 }
 
 function generateUnionAllQuery(
-    ctx, columns, sourceSchemaSufix, sourceTableSufix, businessUnit,
+    ctx, columns, sourceSchemaSuffix, sourceTableSuffix, businessUnit,
     accountsLevel = true, distinct = false, whereConditions = []) {
   let unionAllQueryParts = [];
 
-  const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`;
+  const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`;
 
   if (accountsLevel) {
     businessUnit.accountsTablePrefixes.forEach(accountPrefix => {
-      const sourceTableName = `${accountPrefix}_${sourceTableSufix}`;
+      const sourceTableName = `${accountPrefix}_${sourceTableSuffix}`;
       // Generate the SELECT statement for this table
       const selectStatement = generateSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
       // Add the SELECT statement to the parts array
@@ -121,7 +121,7 @@ function generateUnionAllQuery(
     });
   } else {
     // If accountsLevel is false, generate a select statement without iterating over accounts
-    const sourceTableName = `${sourceTableSufix}`;
+    const sourceTableName = `${sourceTableSuffix}`;
     const selectStatement = generateSelectStatement(ctx, columns, schemaName, sourceTableName, distinct);
     unionAllQueryParts.push(selectStatement);
   }
@@ -130,7 +130,7 @@ function generateUnionAllQuery(
 }
 
 function generateJoinQueryForAccounts(
-    ctx, columns, sourceSchemaSufix, tablePrefix, tableSuffixes, onKeys,
+    ctx, columns, sourceSchemaSuffix, tablePrefix, tableSuffixes, onKeys,
     baseTableAlias, businessUnit) {
   let tablesToJoin = tableSuffixes.map(table => `${tablePrefix}_${table}`);
   const baseTable = tablesToJoin.shift(); // Assuming the first table is the base for joining others
@@ -138,13 +138,13 @@ function generateJoinQueryForAccounts(
       SELECT
       ${columns}
       FROM
-      ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSufix}`, baseTable)} t0 
+      ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`, baseTable)} t0 
   `;
 
   tablesToJoin.forEach((table, index) => {
       const tableAlias = `t${index + 1}`;
       baseQuery += `
-          JOIN ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSufix}`, table)} ${tableAlias}
+          JOIN ${ctx.ref(`${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`, table)} ${tableAlias}
           ON ${joinOn(onKeys, baseTableAlias, tableAlias)}\n
       `;
   });

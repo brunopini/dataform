@@ -1,5 +1,5 @@
-const sourceSchemaSufix = 'ab_criteo_marketing';
-const targetSchemaSufix = 'criteo_marketing';
+const sourceSchemaSuffix = 'ab_criteo_marketing';
+const targetSchemaSuffix = 'criteo_marketing';
 const lookBackDays = '30';
 
 const businessUnits = [
@@ -10,8 +10,8 @@ const businessUnits = [
 ];
 
 module.exports = {
-    sourceSchemaSufix,
-    targetSchemaSufix,
+    sourceSchemaSuffix,
+    targetSchemaSuffix,
     lookBackDays,
     businessUnits
 }

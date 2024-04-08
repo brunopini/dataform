@@ -1,5 +1,5 @@
 const {
-    sourceSchemaSufix,
+    sourceSchemaSuffix,
     businessUnits
 } = require('config.js');
 const {
@@ -54,7 +54,7 @@ const nonNullAssertion = getNotNullColumns(columns);
 businessUnits.forEach(businessUnit => {
     publish('stg_coupon', {
         type: 'view',
-        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`,
+        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
         assertions: {
             uniqueKey: uniqueAssertion,
             nonNull: nonNullAssertion
@@ -62,7 +62,7 @@ businessUnits.forEach(businessUnit => {
         tags: ['staging', 'view', 'dim']
     }).query(ctx => generateUnionAllQuery(
         ctx, generateSelectColumns(ctx, columns),
-        sourceSchemaSufix, 'coupons', businessUnit)
+        sourceSchemaSuffix, 'coupons', businessUnit)
     )
 })
 

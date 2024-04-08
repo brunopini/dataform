@@ -1,5 +1,5 @@
 const {
-  sourceSchemaSufix,
+  sourceSchemaSuffix,
   businessUnits
 } = require('config.js');
 const {
@@ -90,7 +90,7 @@ businessUnits.forEach(businessUnit => {
     // For each business unit, create a view.
     publish('stg_stats', {
         type: 'view',
-        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`,
+        schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
         assertions: {
             uniqueKey: uniqueAssertion,
             nonNull: nonNullAssertion
@@ -103,7 +103,7 @@ businessUnits.forEach(businessUnit => {
             // Generate JOIN queries for each account prefix.
             let joinQuery = generateJoinQueryForAccounts(
                 ctx, generateSelectColumns(ctx, columns),
-                sourceSchemaSufix, accountPrefix, baseTables,
+                sourceSchemaSuffix, accountPrefix, baseTables,
                 getPrimaryKeys(baseColumns(ctx), false), 't0',
                 businessUnit
             );

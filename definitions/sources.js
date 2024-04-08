@@ -1,5 +1,5 @@
 const {
-    sourceSchemaSufix,
+    sourceSchemaSuffix,
     businessUnits
 } = require('config.js')
 
@@ -26,7 +26,7 @@ const sourceStreams = [
 
 
 businessUnits.forEach(businessUnit => {
-    const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSufix}`;
+    const schemaName = `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`;
   
     businessUnit.accountsTablePrefixes.forEach(account => {
       sourceStreams.forEach(table => {
