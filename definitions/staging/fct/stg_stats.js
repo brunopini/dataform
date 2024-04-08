@@ -11,11 +11,11 @@ const {
   generateSelectColumns,
 } = require('includes/schema.js');
 const {
-  baseColumns
+  dimColumns
 } = require('includes/stats.js');
 
 
-const columns = (ctx) => baseColumns(ctx, 't0.').concat([
+const columns = (ctx) => dimColumns(ctx, 't0.').concat([
   { name: 'CAST(t0.AdvertiserCost AS NUMERIC)', type: 'NUMERIC', alias: 'advertiser_cost' },
   { name: 'CAST(t0.Clicks AS NUMERIC)', type: 'NUMERIC', alias: 'clicks' },
   { name: 'CAST(t0.Displays AS NUMERIC)', type: 'NUMERIC', alias: 'displays' },
@@ -104,7 +104,7 @@ businessUnits.forEach(businessUnit => {
             let joinQuery = generateJoinQueryForAccounts(
                 ctx, generateSelectColumns(ctx, columns),
                 sourceSchemaSuffix, accountPrefix, baseTables,
-                getPrimaryKeys(baseColumns(ctx), false), 't0',
+                getPrimaryKeys(dimColumns(ctx), false), 't0',
                 businessUnit
             );
             unionQueries.push(`(${joinQuery})`);

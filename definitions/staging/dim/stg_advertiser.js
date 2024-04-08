@@ -20,6 +20,7 @@ const nonNullAssertion = getNotNullColumns(columns);
 
 
 businessUnits.forEach(businessUnit => {
+  // For each business unit, create a view.
   publish('stg_advertiser', {
     type: 'view',
     schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
@@ -28,7 +29,7 @@ businessUnits.forEach(businessUnit => {
         nonNull: nonNullAssertion
     },
     tags: ['staging', 'view', 'dim']
-  }).query(ctx => generateUnionAllQuery(
+  }).query(ctx => generateUnionAllQuery( // Union all accounts per business unit.
     ctx, generateSelectColumns(ctx, columns),
     sourceSchemaSuffix, 'statistics_pre_click', businessUnit, true, true)
     // true for account level union (default) and for distinct select ^

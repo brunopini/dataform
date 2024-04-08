@@ -13,7 +13,7 @@ const {
 } = require('includes/schema.js');
 const {
     columns
-} = require('includes/reach.js');
+} = require('includes/ngg.js');
 
 
 const entity = 'Campaign';
@@ -28,7 +28,7 @@ const nonNullAssertion = getNotNullColumns(mockColumns);
 businessUnits.forEach(businessUnit => {
     const entityTableComponent = entity.toLowerCase();
     const timeframeTableComponent = timeframe.toLowerCase();
-
+    // For each business unit, create a view.
     publish(`stg_${entityTableComponent}_${timeframeTableComponent}_reach`, {
         type: 'view',
         schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
@@ -37,7 +37,7 @@ businessUnits.forEach(businessUnit => {
             nonNull: nonNullAssertion
         },
         tags: ['staging', 'view', 'ngg']
-    }).query(ctx => generateUnionAllQuery(
+    }).query(ctx => generateUnionAllQuery( // Union all accounts per business unit.
         ctx, generateSelectColumns(ctx, columns(ctx, entity, timeframe)),
         sourceSchemaSuffix, `user_agg_${entityTableComponent}_${timeframeTableComponent}`, businessUnit)
     )

@@ -3,7 +3,7 @@ const {
 } = require('config.js');
 
 
-const baseColumns = (ctx, tableAlias = '') => [
+const dimColumns = (ctx, tableAlias = '') => [
     { name: `DATE(${tableAlias}Day)`, type: 'DATE NOT NULL', alias: 'date', constraints: [
         'PRIMARY KEY'] },
     { name: `${tableAlias}AdId`, type: 'STRING NOT NULL', alias: 'ad_id', constraints: [
@@ -35,7 +35,5 @@ const baseColumns = (ctx, tableAlias = '') => [
 ];
 
 module.exports = {
-    // statsSelectDimensions,
-    // statsSchemaDimensions,
-    baseColumns
+    dimColumns
 }
