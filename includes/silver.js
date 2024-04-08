@@ -12,9 +12,9 @@ const {
 } = require('includes/utils.js');
 
 
-function publishSilverTableFromStagingViews(tableConfig, tableType, isIncremental = false, additionalTags = []) {
+function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremental = false, additionalTags = []) {
     const tableSuffix = tableConfig.suffix;
-    const definitionsPath = `definitions/staging/${tableType}/stg_${tableSuffix}.js`;
+    const definitionsPath = `definitions/staging/${tableNature}/stg_${tableSuffix}.js`;
     const {
         columns,
         uniqueAssertion,
@@ -25,7 +25,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableType, isIncrementa
     const partitionBy = tableConfig.partitionBy; // Will be undefined for dimTables not designed for incrementality
   
     // Combine base tags with additionalTags
-    let tags = ['silver', 'table', tableType, ...additionalTags];
+    let tags = ['silver', 'table', tableNature, ...additionalTags];
   
     let publishConfig = {
         type: isIncremental ? 'incremental' : 'table',
@@ -47,7 +47,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableType, isIncrementa
         tags.push('incremental');
     }
   
-    publish(`${tableType}_${tableSuffix}`, publishConfig)
+    publish(`${tableNature}_${tableSuffix}`, publishConfig)
     .query(ctx => {
         let unionParts = [];
   

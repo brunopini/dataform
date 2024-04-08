@@ -12,10 +12,10 @@ const fctTables = [
 ];
 
 
-const tableType = 'fct';
+const tableNature = 'fct';
 const incremental = true;
 
 
 fctTables.forEach(fctTable => {
-    publishSilverTableFromStagingViews(fctTable, tableType, incremental)
+    publishSilverTableFromStagingViews(fctTable, tableNature, incremental)
 })

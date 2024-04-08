@@ -1,30 +1,23 @@
-function nggReachSchema(timeframe, primaryKey, ctx, entity) {
-    return `
-        id STRING NOT NULL,
-        advertiser_id STRING NOT NULL REFERENCES ${ctx.ref('dim_advertiser')}(id) NOT ENFORCED,
-        ${timeframe} DATE NOT NULL,
-        audience_size NUMERIC,
-        exposed_users NUMERIC,
-        visits NUMERIC,
-        qualified_visits NUMERIC,
-        PRIMARY KEY (${primaryKey}) NOT ENFORCED,
-        FOREIGN KEY (id, advertiser_id) REFERENCES ${ctx.ref(`dim_${entity}`)}(id, advertiser_id) NOT ENFORCED
-    `
-};
+const {
+    targetSchemaSuffix
+} = require('config.js');
 
-function nggReachSelect(entityRaw, timeframeRaw, timeframeNew) {
-    return `
-      ${entityRaw} AS id,
-      AdvertiserId AS advertiser_id,
-      DATE(${timeframeRaw}) AS ${timeframeNew},
-      CAST(Audience AS NUMERIC) AS audience_size,
-      CAST(ExposedUsers AS NUMERIC) AS exposed_users,
-      CAST(Visits AS NUMERIC) AS visits,
-      CAST(QualifiedVisits AS NUMERIC) AS qualified_visits,
-    `
-};
+
+const columns = (ctx, entityRaw, timeframeRaw, timeframeAlias = timeframeRaw.toLowerCase() ) => [
+    { name: `DATE(${timeframeRaw})`, type: 'DATE NOT NULL', alias: timeframeAlias, constraints: [
+        'PRIMARY KEY'] },
+    { name: `${entityRaw}Id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
+        'PRIMARY KEY',
+        `FOREIGN KEY (advertiser_id) ${ctx.ref(targetSchemaSuffix, `dim_${entityRaw.toLowerCase()}`)}(id, advertiser_id)`] },
+    { name: 'AdvertiserId', type: 'STRING NOT NULL', alias: 'advertiser_id', constraints: [
+        'PRIMARY KEY',
+        `FOREIGN KEY ${ctx.ref(targetSchemaSuffix, 'dim_advertiser')}(id)`] },
+    { name: 'CAST(Audience) AS NUMERIC', type: 'NUMERIC', alias: 'audience_size' },
+    { name: 'CAST(ExposedUsers) AS NUMERIC', type: 'NUMERIC', alias: 'exposed_users' },
+    { name: 'CAST(Visits) AS NUMERIC', type: 'NUMERIC', alias: 'visits' },
+    { name: 'CAST(QualifiedVisits) AS NUMERIC', type: 'NUMERIC', alias: 'qualified_visits' },
+];
 
 module.exports = {
-    nggReachSchema,
-    nggReachSelect
+    columns
 };

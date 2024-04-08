@@ -43,9 +43,9 @@ const dimTables = [
 ]
 
 
-const tableType = 'dim';
+const tableNature = 'dim';
 
 
 dimTables.forEach(dimTable => {
-    publishSilverTableFromStagingViews(dimTable, tableType)
+    publishSilverTableFromStagingViews(dimTable, tableNature)
 })
