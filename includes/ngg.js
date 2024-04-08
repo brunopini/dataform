@@ -21,8 +21,8 @@ const metricColumns = [
     { name: 'CAST(QualifiedVisits AS NUMERIC)', type: 'NUMERIC', alias: 'qualified_visits' },
 ];
 
-const columns = (ctx, entityRaw = '', timeframeRaw = '', timeframeAlias = '') => [
-    ...dimColumns(ctx, entityRaw, timeframeRaw, timeframeAlias), // Spread the dimension columns into the array
+const columns = (ctx, entityRaw = '', timeframeRaw = '') => [
+    ...dimColumns(ctx, entityRaw, timeframeRaw), // Spread the dimension columns into the array
     ...metricColumns     // Append the metric columns
 ];
 

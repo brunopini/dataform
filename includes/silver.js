@@ -23,7 +23,6 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
 
     if (
         typeof tableNature === 'string' && tableNature === 'ngg' && typeof columns === 'function'
-        && tableConfig.nggEntity && tableConfig.nggTimeframe
     ) {
         const originalColumns = columns; // Save the original columns function
         columns = (ctx) => originalColumns(ctx, tableConfig.suffix.split('_')[0], tableConfig.partitionBy);

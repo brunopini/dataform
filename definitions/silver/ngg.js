@@ -3,6 +3,8 @@ const {
 } = require('includes/silver.js');
 
 
+const commonClusterBy = ['advertiser_id', 'id'];
+
 const nggTables = [
     {
         suffix: 'stats_day_reach',
@@ -12,32 +14,32 @@ const nggTables = [
     {
         suffix: 'adset_month_reach',
         partitionBy: 'month',
-        clusterBy: ['advertiser_id', 'adset_id']
+        clusterBy: commonClusterBy
     },
     {
         suffix: 'adset_week_reach',
         partitionBy: 'week',
-        clusterBy: ['advertiser_id', 'adset_id']
+        clusterBy: commonClusterBy
     },
     {
         suffix: 'adset_year_reach',
         partitionBy: 'year',
-        clusterBy: ['advertiser_id', 'adset_id']
+        clusterBy: commonClusterBy
     },
     {
         suffix: 'campaign_month_reach',
         partitionBy: 'month',
-        clusterBy: ['advertiser_id', 'campaign_id']
+        clusterBy: commonClusterBy
     },
     {
         suffix: 'campaign_week_reach',
         partitionBy: 'week',
-        clusterBy: ['advertiser_id', 'campaign_id']
+        clusterBy: commonClusterBy
     },
     {
         suffix: 'campaign_year_reach',
         partitionBy: 'year',
-        clusterBy: ['advertiser_id', 'campaign_id']
+        clusterBy: commonClusterBy
     },
 ];
 
