@@ -1,3 +1,8 @@
+const {
+    mockCtx
+} = require('includes/utils.js');
+
+
 /**
  * Generates a SQL SELECT statement from a given columns configuration.
  * This function constructs a SELECT statement that includes all columns specified in the columns definition,
@@ -145,7 +150,7 @@ function createOrReplaceTableInplace(ctx, schemaDefinition, clusterBy = '', part
  * @returns {Array<string>} A list of column aliases or names that are marked as not null.
  */
 function getNotNullColumns(columnsDefinition) {
-    const ctx = { ref: (tableName) => tableName }; // Mocked ctx
+    const ctx = mockCtx; // Mocked ctx
     const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
     return columns
         .filter(col => col.type && col.type.includes('NOT NULL'))
@@ -162,7 +167,7 @@ function getNotNullColumns(columnsDefinition) {
  * @returns {Array<string>} A list of column aliases or names that are marked as primary keys.
  */
 function getPrimaryKeys(columnsDefinition, alias = true) {
-    const ctx = { ref: (tableName) => tableName }; // Mocked ctx
+    const ctx = mockCtx; // Mocked ctx
     const columns = typeof columnsDefinition === 'function' ? columnsDefinition(ctx) : columnsDefinition;
 
     return columns

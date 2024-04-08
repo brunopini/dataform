@@ -4,6 +4,7 @@ const {
 } = require('config.js');
 const {
     generateUnionAllQuery,
+    mockCtx,
 } = require("includes/utils.js");
 const {
     getNotNullColumns,
@@ -18,16 +19,16 @@ const {
 const entity = 'Adset'
 const timeframe = 'Month'
 
-columns = baseColumns;
+mockColumns = columns(mockCtx, entity, timeframe);
 
-const uniqueAssertion = getPrimaryKeys(columns);
-const nonNullAssertion = getNotNullColumns(columns);
+const uniqueAssertion = getPrimaryKeys(mockColumns);
+const nonNullAssertion = getNotNullColumns(mockColumns);
 
 
 businessUnits.forEach(businessUnit => {
-    entityTableComponent = entity.toLocaleLowerCase();
-    timeframeTableComponent = timeframe.toLocaleLowerCase()
-    selectColumns = columns(ctx, entity, timeframe);
+    const entityTableComponent = entity.toLowerCase();
+    const timeframeTableComponent = timeframe.toLowerCase();
+
     publish(`stg_${entityTableComponent}_${timeframeTableComponent}_reach`, {
         type: 'view',
         schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
@@ -37,7 +38,7 @@ businessUnits.forEach(businessUnit => {
         },
         tags: ['staging', 'view', 'ngg']
     }).query(ctx => generateUnionAllQuery(
-        ctx, generateSelectColumns(ctx, selectColumns),
+        ctx, generateSelectColumns(ctx, columns(ctx, entity, timeframe)),
         sourceSchemaSuffix, `user_agg_${entityTableComponent}_${timeframeTableComponent}`, businessUnit)
     )
 })

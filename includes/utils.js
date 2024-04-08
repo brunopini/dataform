@@ -3,6 +3,8 @@ const {
 } = require('config.js');
 
 
+const mockCtx = {ref: (tableName) => tableName};
+
 function extractAttribute(attribute) {
     return `JSON_EXTRACT_SCALAR(attributes, '$.${attribute}')`;
 }
@@ -152,6 +154,7 @@ function generateJoinQueryForAccounts(
 }
 
 module.exports = {
+    mockCtx,
     extractAttribute,
     extractArrayAttribute,
     lookBackDate,
