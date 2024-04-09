@@ -77,9 +77,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
         DECLARE schema_is_set BOOL DEFAULT FALSE;
         ${isIncremental ? declareInsertDateCheckpoint(ctx, partitionBy) : ''}
     `)
-    .postOps(ctx => `
-        ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy)}
-    `);
+    .postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy));
 }
 
 module.exports = {
