@@ -38,12 +38,13 @@ function lookBackDate(dateConstruct, fromCurrentTimestamp = false, unitIncrement
     return `DATE(TIMESTAMP_SUB(${date}, INTERVAL ${units} ${unitType}))`;
 }
 
-function declareInsertDateCheckpoint(ctx, dateConstruct = 'date') {
+function declareInsertDateCheckpoint(ctx, dateColumn = 'date', fromCurrentTimestamp = false) {
+    lookBack = fromCurrentTimestamp ? lookBackDate('CURRENT_TIMESTAMP()') : lookBackDate(`MAX(${dateColumn})`);
     return `
         DECLARE insert_date_checkpoint DEFAULT (
             ${
                 ctx.when(ctx.incremental(),
-                    `SELECT ${lookBackDate(`MAX(${dateConstruct})`)} FROM ${ctx.self()}`,
+                    `SELECT ${lookBack} FROM ${ctx.self()}`,
                     `SELECT DATE('2000-01-01')`)
             }
         );`

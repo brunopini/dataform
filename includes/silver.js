@@ -16,7 +16,7 @@ const {
 } = require('includes/incremental.js');
 
 
-function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremental = false, additionalTags = []) {
+function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremental = false, whereConditions = [], additionalTags = []) {
     const tableSuffix = tableConfig.suffix;
     const definitionsPath = `definitions/staging/${tableNature}/stg_${tableSuffix}.js`;
     let {
@@ -34,10 +34,10 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
 
     const clusterBy = tableConfig.clusterBy
     const partitionBy = tableConfig.partitionBy; // Will be undefined for dimTables not designed for incrementality
-  
+    
     // Combine base tags with additionalTags
     let tags = ['silver', 'table', tableNature, ...additionalTags];
-  
+    
     let publishConfig = {
         type: isIncremental ? 'incremental' : 'table',
         assertions: {
@@ -49,34 +49,33 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
         },
         tags: tags
     };
-
+    
     // Adjust the publish configuration for incremental tables
-    let whereCondition;
+    // let whereConditions = [];
     if (isIncremental) {
         publishConfig.uniqueKey = uniqueAssertion
-        publishConfig.bigquery.partitionBy = partitionBy;
-        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate(partitionBy, true)}`;
-        whereCondition = `WHERE ${publishConfig.bigquery.partitionBy} >= insert_date_checkpoint`;
+        if(partitionBy) {
+            publishConfig.bigquery.partitionBy = partitionBy;
+            publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate(partitionBy, true)}`;
+            whereConditions = whereConditions.concat([`${publishConfig.bigquery.partitionBy} >= insert_date_checkpoint`]);
+        }
         tags.push('incremental');
     }
   
     publish(`${tableNature}_${tableSuffix}`, publishConfig)
     .query(ctx => {
-        ctx.when(!ctx.incremental(), () => {
-            whereCondition = []
-        });
         let unionParts = [];
   
         businessUnits.forEach(businessUnit => {
-            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${tableSuffix}`, businessUnit, false, false, whereCondition);
+            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${tableSuffix}`, businessUnit, false, false, whereConditions);
             unionParts.push(part);
         });
   
         return unionParts.join(' UNION ALL ');
-    })
+    }) // TODO Prep for incremental non temporal
     .preOps(ctx => `
         ${declareSchemaIsSet}
-        ${isIncremental ? declareInsertDateCheckpoint(ctx, partitionBy) : ''}
+        ${(isIncremental) ? declareInsertDateCheckpoint(ctx, partitionBy, (false ? partitionBy : true)) : ''}
     `)
     .postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy));
 }
