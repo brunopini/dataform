@@ -2,27 +2,40 @@ const {
     lookBackDays
 } = require('config.js');
 
-const lookBackWeeks = math.ceil(parseInt(lookBackDays) / 7).toString();
-const lookBackMonths = math.ceil(parseInt(lookBackDays) / 30).toString();
-const lookBackYears = math.ceil(parseInt(lookBackDays) / 365).toString();
 
-
-function lookBackDate(dateConstruct, lookBackUnits = lookBackDays) {
-    let lookBackUnits = lookBackUnits;
-    // Defaults to DAY intervals and DATETIME outputs
-    let lookBackDate = `TIMESTAMP_SUB(${dateConstruct}, INTERVAL ${lookBackUnits} DAY))`;
-    if(dateConstruct.toLowerCase().includes('week')){
-        lookBackUnits = lookBackWeeks;
-        lookBackDate = `DATE(TIMETAMP_SUB(${dateConstruct}, INTERVAL ${lookBackUnits} WEEK))`
-    } else if(dateConstruct.toLowerCase().includes('month')){
-        lookBackUnits = lookBackMonths;
-        lookBackDate = `DATE(TIMETAMP_SUB(${dateConstruct}, INTERVAL ${lookBackUnits} MONTH))`
-    } else if(dateConstruct.toLowerCase().includes('year')){
-        lookBackUnits = lookBackYears;
-        lookBackDate = `DATE(TIMETAMP_SUB(${dateConstruct}, INTERVAL ${lookBackUnits} YEAR))`
+function lookBackDate(dateConstruct, fromCurrentTimestamp = false, unitIncrement) {
+    let date;
+    let increment;
+    if(fromCurrentTimestamp) {
+        date = 'CURRENT_TIMESTAMP()';
+        increment = unitIncrement ? unitIncrement : 1;
+    } else {
+        increment = unitIncrement ? unitIncrement : 0;
+        date = dateConstruct;
     }
 
-    return lookBackDate
+    // Convert lookBackDays to ensure it's an integer
+    let units = parseInt(lookBackDays, 10);
+
+    // Now construct the lookBackDate using the possibly adjusted units
+    let unitType;
+    if(dateConstruct.toLowerCase().includes('week')){
+        unitType = 'WEEK';
+        date = `DATE(${date})`;
+        units = Math.ceil(units / 7) + increment;
+    } else if(dateConstruct.toLowerCase().includes('month')){
+        unitType = 'MONTH';
+        date = `DATE(${date})`;
+        units = Math.ceil(units / 30) + increment;
+    } else if(dateConstruct.toLowerCase().includes('year')){
+        unitType = 'YEAR';
+        date = `DATE(${date})`;
+        units = Math.ceil(units / 365) + increment;
+    } else {
+        unitType = 'DAY'
+    }
+
+    return `DATE(TIMESTAMP_SUB(${date}, INTERVAL ${units} ${unitType}))`;
 }
 
 function declareInsertDateCheckpoint(ctx, dateConstruct = 'date') {
@@ -34,4 +47,9 @@ function declareInsertDateCheckpoint(ctx, dateConstruct = 'date') {
                     `SELECT DATE('2000-01-01')`)
             }
         );`
+}
+
+module.exports = {
+    lookBackDate,
+    declareInsertDateCheckpoint
 }

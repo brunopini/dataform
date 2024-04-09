@@ -54,7 +54,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
     if (isIncremental) {
         publishConfig.uniqueKey = uniqueAssertion
         publishConfig.bigquery.partitionBy = partitionBy;
-        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate('CURRENT_TIMESTAMP()')}`;
+        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate(partitionBy, true)}`;
         whereCondition = `WHERE ${publishConfig.bigquery.partitionBy} >= insert_date_checkpoint`;
         tags.push('incremental');
     }
