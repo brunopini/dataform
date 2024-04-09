@@ -2,8 +2,11 @@ const {
     businessUnits
 } = require('config.js');
 const {
+    declareSchemaIsSet,
     generateSchemaDefinition,
-    createOrReplaceTableInplace
+    createOrReplaceTableInplace,
+    getNotNullColumns,
+    getPrimaryKeys
 } = require('includes/schema.js');
 
 
@@ -30,11 +33,13 @@ publish('dim_business_unit', {
         clusterBy: clusterBy
     }
 }).query(ctx => `
-    INSERT INTO ${self()} (business_unit, advertiser_id)
+    INSERT INTO ${ctx.self()} (business_unit, advertiser_id)
     VALUES ${
         businessUnits.map(
             unit => unit.accountsTablePrefixes.map(
                 prefix => `('${unit.schemaPrefix}', '${prefix}')`
             ).join(", ")
         ).join(", ")}
-`).postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy));
+`).preOps(
+    declareSchemaIsSet
+).postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy));

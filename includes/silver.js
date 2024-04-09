@@ -3,6 +3,7 @@ const {
     businessUnits
 } = require('config.js');
 const {
+    declareSchemaIsSet,
     createOrReplaceTableInplace,
     generateSchemaDefinition
 } = require('includes/schema.js');
@@ -74,7 +75,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
         return unionParts.join(' UNION ALL ');
     })
     .preOps(ctx => `
-        DECLARE schema_is_set BOOL DEFAULT FALSE;
+        ${declareSchemaIsSet}
         ${isIncremental ? declareInsertDateCheckpoint(ctx, partitionBy) : ''}
     `)
     .postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy));

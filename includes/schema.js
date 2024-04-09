@@ -3,6 +3,8 @@ const {
 } = require('includes/utils.js');
 
 
+const declareSchemaIsSet = 'DECLARE schema_is_set BOOL DEFAULT FALSE;';
+
 /**
  * Generates a SQL SELECT statement from a given columns configuration.
  * This function constructs a SELECT statement that includes all columns specified in the columns definition,
@@ -208,6 +210,7 @@ function simpleDimSchema(primaryKey) {
 `}
 
 module.exports = {
+    declareSchemaIsSet,
     generateSelectColumns,
     generateSchemaDefinition,
     getPrimaryKeys,
