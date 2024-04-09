@@ -1,0 +1,38 @@
+js {
+    const {
+        businessUnits
+    } = require('config.js');
+    const {
+        createOrReplaceTableInplace
+    } = require('includes/schema.js');
+}
+
+config {
+    type: 'table',
+    assertions: {
+        uniqueKey: ['business_unit', 'advertiser_id'],
+        nonNull: ['business_unit', 'advertiser_id']
+    },
+    bigquery: {
+        clusterBy: ['advertiser_id']
+    }
+}
+
+-- CREATE OR REPLACE TABLE ${self()} (
+--     business_unit STRING NOT NULL,
+--     advertiser_id STRING NOT NULL,
+--     PRIMARY KEY (business_unit, advertiser_id) NOT ENFORCED,
+--     FOREIGN KEY (advertiser_id) REFERENCES ${schema()}.dim_advertiser(id) NOT ENFORCED
+-- );
+
+INSERT INTO ${self()} (business_unit, advertiser_id)
+VALUES ${
+    businessUnits.map(
+        unit => unit.accountsTablePrefixes.map(
+            prefix => `('${unit.schemaPrefix}', '${prefix}')`
+        ).join(", ")
+    ).join(", ")}
+
+post_operations {
+    ${createOrReplaceTableInplace()}
+}

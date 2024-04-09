@@ -6,7 +6,7 @@ const businessUnits = [
     {
         schemaPrefix: 'globoplay',
         accountsTablePrefixes: ['account',]
-    }
+    },
 ];
 
 module.exports = {
