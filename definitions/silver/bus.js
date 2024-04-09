@@ -32,14 +32,18 @@ publish('dim_business_unit', {
     bigquery: {
         clusterBy: clusterBy
     }
-}).query(ctx => `
+}).query(`
+    SELECT 'dummy_value' AS business_unit, 'dummy_value' AS advertiser_id
+    FROM UNNEST([FALSE]) AS empty
+    WHERE empty
+`).preOps(
+    declareSchemaIsSet
+).postOps(ctx => `
     INSERT INTO ${ctx.self()} (business_unit, advertiser_id)
     VALUES ${
         businessUnits.map(
             unit => unit.accountsTablePrefixes.map(
                 prefix => `('${unit.schemaPrefix}', '${prefix}')`
             ).join(", ")
-        ).join(", ")}
-`).preOps(
-    declareSchemaIsSet
-).postOps(ctx => createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy));
+        ).join(", ")};
+    ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy)}`);
