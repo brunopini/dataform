@@ -1,8 +1,3 @@
-const { 
-  lookBackDays
-} = require('config.js');
-
-
 const mockCtx = {ref: (tableName) => tableName};
 
 function extractAttribute(attribute) {
@@ -15,10 +10,6 @@ function extractArrayAttribute(attribute) {
       FROM UNNEST(
         JSON_EXTRACT_ARRAY(attributes, '$.${attribute}')
       ) AS item)`;
-}
-
-function lookBackDate(dateConstruct) {
-    return `DATE(TIMESTAMP_SUB(${dateConstruct}, INTERVAL ${lookBackDays} DAY))`
 }
 
 function joinOn(keys, leftAlias, rightAlias) {
@@ -157,7 +148,6 @@ module.exports = {
     mockCtx,
     extractAttribute,
     extractArrayAttribute,
-    lookBackDate,
     joinOn,
     metricsTypeDeclarations,
     removeTrailingComma,

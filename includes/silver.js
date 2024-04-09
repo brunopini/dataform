@@ -8,8 +8,11 @@ const {
 } = require('includes/schema.js');
 const {
     generateUnionAllQuery,
-    lookBackDate
 } = require('includes/utils.js');
+const {
+    lookBackDate,
+    declareInsertDateCheckpoint
+} = require('includes/incremental.js');
 
 
 function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremental = false, additionalTags = []) {
@@ -46,27 +49,25 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
         tags: tags
     };
 
-    let partitionFilterCondition;
-  
     // Adjust the publish configuration for incremental tables
+    let whereCondition;
     if (isIncremental) {
         publishConfig.uniqueKey = uniqueAssertion
         publishConfig.bigquery.partitionBy = partitionBy;
-        if (partitionBy === 'date') {
-            partitionFilterCondition = `${lookBackDate('CURRENT_TIMESTAMP()')}`;
-        } else {
-            partitionFilterCondition = `${lookBackDate(`TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 ${partitionBy.toUpperCase()}`)}`;
-        }
-        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${partitionFilterCondition}`;
+        publishConfig.bigquery.updatePartitionFilter = `${partitionBy} >= ${lookBackDate('CURRENT_TIMESTAMP()')}`;
+        whereCondition = `WHERE ${publishConfig.bigquery.partitionBy} >= insert_date_checkpoint`;
         tags.push('incremental');
     }
   
     publish(`${tableNature}_${tableSuffix}`, publishConfig)
     .query(ctx => {
+        ctx.when(!ctx.incremental(), () => {
+            whereCondition = []
+        });
         let unionParts = [];
   
         businessUnits.forEach(businessUnit => {
-            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${tableSuffix}`, businessUnit, false);
+            const part = generateUnionAllQuery(ctx, '*', sourceSchemaSuffix, `stg_${tableSuffix}`, businessUnit, false, false, whereCondition);
             unionParts.push(part);
         });
   
@@ -74,14 +75,7 @@ function publishSilverTableFromStagingViews(tableConfig, tableNature, isIncremen
     })
     .preOps(ctx => `
         DECLARE schema_is_set BOOL DEFAULT FALSE;
-        ${isIncremental ? `
-        DECLARE insert_date_checkpoint DEFAULT (
-            ${
-                ctx.when(ctx.incremental(),
-                    `SELECT ${lookBackDate(`MAX(${partitionBy})`)} FROM ${ctx.self()}`,
-                    `SELECT DATE('2000-01-01')`)
-            }
-        );` : ''}
+        ${isIncremental ? declareInsertDateCheckpoint(ctx, partitionBy) : ''}
     `)
     .postOps(ctx => `
         ${createOrReplaceTableInplace(ctx, generateSchemaDefinition(ctx, columns), clusterBy, partitionBy)}
