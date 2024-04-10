@@ -14,13 +14,13 @@ const {
   } = require('includes/schema.js'); 
   
   
-const columns = (ctx) => simpleDimColumns('ad').concat([
+const columns = (ctx) => simpleDimColumns('adset').concat([
   { name: 'app_id', type: 'STRING NOT NULL', constraints: [
     'PRIMARY KEY',
     `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_app')})(id)`] },
-  { name: 'ad_set_id', type: 'STRING NOT NULL', alias: 'adset_id', constraints: [
+  { name: 'campaign_id', type: 'STRING NOT NULL', constraints: [
     'PRIMARY KEY',
-    `FOREIGN KEY (app_id) (${ctx.ref(targetSchemaSuffix, 'dim_adset')})(id, app_id)`] },
+    `FOREIGN KEY (app_id) (${ctx.ref(targetSchemaSuffix, 'dim_campaign')})(id, app_id)`] },
 ]);
 
   const uniqueAssertion = getPrimaryKeys(columns);
@@ -29,7 +29,7 @@ const columns = (ctx) => simpleDimColumns('ad').concat([
   
   businessUnits.forEach(businessUnit => {
     // For each business unit, create a view.
-    publish('stg_ad', {
+    publish('stg_adset', {
       type: 'view',
       schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
       assertions: {
