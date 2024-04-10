@@ -1,5 +1,5 @@
 {
-  "defaultSchema": "criteo_marketing",
+  "defaultSchema": "winclap",
   "assertionSchema": "dataform_assertions",
   "warehouse": "bigquery",
   "defaultDatabase": "globo-maos-d",

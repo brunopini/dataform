@@ -1,5 +1,6 @@
 const {
     sourceSchemaSuffix,
+    targetSchemaSuffix,
     businessUnits
   } = require('config.js');
   const {
@@ -10,15 +11,18 @@ const {
       getNotNullColumns,
       getPrimaryKeys,
       generateSelectColumns
-  } = require('includes/schema.js');
+  } = require('includes/schema.js'); 
   
   
-  const columns = simpleDimColumns('ad').concat([
-    { name: 'app_id', type: 'STRING NOT NULL', constraints: [
-        'PRIMARY KEY',
-        `FOREIGN KEY ${ctx.ref(targetSchemaSuffix, 'dim_app')}(id)`] }
-  ]);
-  
+const columns = (ctx) => simpleDimColumns('ad').concat([
+  { name: 'app_id', type: 'STRING NOT NULL', constraints: [
+    'PRIMARY KEY',
+    `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_app')})(id)`] },
+  { name: 'ad_set_id', type: 'STRING NOT NULL', constraints: [
+    'PRIMARY KEY',
+    `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_adset')})(id)`] },
+]);
+
   const uniqueAssertion = getPrimaryKeys(columns);
   const nonNullAssertion = getNotNullColumns(columns);
   
@@ -33,16 +37,16 @@ const {
           nonNull: nonNullAssertion
       },
       tags: ['staging', 'view', 'dim']
-    }).query(ctx => generateUnionAllQuery( // Union all accounts per business unit.
-      ctx, generateSelectColumns(ctx, columns),
+    }).query( ctx => generateUnionAllQuery(
+      ctx, generateSelectColumns(ctx,columns),
       sourceSchemaSuffix, 'ad_set_reports_stream', businessUnit, true, true)
-      // true for account level union (default) and for distinct select ^
+  //     // true for account level union (default) and for distinct select ^
     )
   })
   
-  module.exports = {
-    columns,
-    uniqueAssertion,
-    nonNullAssertion
-  }
+  // module.exports = {
+  //   columns,
+  //   uniqueAssertion,
+  //   nonNullAssertion
+  // }
   
