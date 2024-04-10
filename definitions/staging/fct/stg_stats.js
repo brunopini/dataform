@@ -15,7 +15,7 @@ const {
 } = require('includes/stats.js');
 
 
-const columns = (ctx) => dimColumns(ctx, 't0.').concat([
+const columns = (ctx) => dimColumns(ctx).concat([
   { name: 'CAST(total_spend AS NUMERIC)', type: 'NUMERIC' },
   { name: 'CAST(spend AS NUMERIC)', type: 'NUMERIC' },
   { name: 'CAST(impressions AS NUMERIC)', type: 'NUMERIC' },
