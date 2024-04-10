@@ -197,9 +197,9 @@ function getPrimaryKeys(columnsDefinition, alias = true) {
  * and any constraints (such as 'PRIMARY KEY' for the ID column).
  */
 const simpleDimColumns = (dimEntitySource) => [
-    { name: `${dimEntitySource}Id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
+    { name: `${dimEntitySource}_id`, type: 'STRING NOT NULL', alias: 'id', constraints: [
         'PRIMARY KEY'] },
-    { name: `${dimEntitySource}`, type: 'STRING NOT NULL', alias: 'name' }
+    { name: `${dimEntitySource}_name`, type: 'STRING NOT NULL', alias: 'name' }
 ];
 
 function simpleDimSchema(primaryKey) {

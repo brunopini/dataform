@@ -1,11 +1,11 @@
-const sourceSchemaSuffix = 'ab_criteo_marketing';
-const targetSchemaSuffix = 'criteo_marketing';
+const sourceSchemaSuffix = 'ab_winclap';
+const targetSchemaSuffix = 'winclap';
 const lookBackDays = '30';
 
 const businessUnits = [
     {
         schemaPrefix: 'globoplay',
-        accountsTablePrefixes: ['account',]
+        accountsTablePrefixes: ['comgloboglobotv',]
     },
 ];
 

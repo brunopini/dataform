@@ -6,14 +6,14 @@ const {
   generateUnionAllQuery,
 } = require('includes/utils.js');
 const {
-  generateSelectColumns,
-  simpleDimColumns,
-  getNotNullColumns,
-  getPrimaryKeys,
+    simpleDimColumns,
+    getNotNullColumns,
+    getPrimaryKeys,
+    generateSelectColumns
 } = require('includes/schema.js');
 
 
-const columns = simpleDimColumns('MarketingObjective');
+const columns = simpleDimColumns('app');
 
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
@@ -21,7 +21,7 @@ const nonNullAssertion = getNotNullColumns(columns);
 
 businessUnits.forEach(businessUnit => {
   // For each business unit, create a view.
-  publish('stg_marketing_objective', {
+  publish('stg_app', {
     type: 'view',
     schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
     assertions: {
@@ -31,7 +31,7 @@ businessUnits.forEach(businessUnit => {
     tags: ['staging', 'view', 'dim']
   }).query(ctx => generateUnionAllQuery( // Union all accounts per business unit.
     ctx, generateSelectColumns(ctx, columns),
-    sourceSchemaSuffix, 'statistics_pre_click', businessUnit, true, true)
+    sourceSchemaSuffix, 'ad_set_reports_stream', businessUnit, true, true)
     // true for account level union (default) and for distinct select ^
   )
 })

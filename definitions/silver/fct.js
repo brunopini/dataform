@@ -7,7 +7,7 @@ const fctTables = [
     {
         suffix: 'stats',
         partitionBy: 'date',
-        clusterBy: ['advertiser_id', 'campaign_id', 'adset_id', 'ad_id']
+        clusterBy: ['app_id', 'campaign_id', 'adset_id', 'ad_id']
     },
 ];
 

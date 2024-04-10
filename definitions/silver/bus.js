@@ -13,14 +13,14 @@ const {
 const columns = (ctx) => [
     { name: 'business_unit', type: 'STRING NOT NULL', constraints: [
         'PRIMARY KEY'] },
-    { name: 'advertiser_id', type: 'STRING NOT NULL', constraints: [
+    { name: 'app_id', type: 'STRING NOT NULL', constraints: [
         'PRIMARY KEY',
-        `FOREIGN KEY ${ctx.ref('dim_advertiser')}(id)`] }
+        `FOREIGN KEY ${ctx.ref('dim_app')}(id)`] }
 ];
-                
+
 const uniqueAssertion = getPrimaryKeys(columns);
 const nonNullAssertion = getNotNullColumns(columns);
-const clusterBy = ['advertiser_id'];
+const clusterBy = ['app_id'];
 
 
 publish('dim_business_unit', {
@@ -39,7 +39,7 @@ publish('dim_business_unit', {
 `).preOps(
     declareSchemaIsSet
 ).postOps(ctx => `
-    INSERT INTO ${ctx.self()} (business_unit, advertiser_id)
+    INSERT INTO ${ctx.self()} (business_unit, app_id)
     VALUES ${
         businessUnits.map(
             unit => unit.accountsTablePrefixes.map(
