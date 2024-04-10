@@ -14,7 +14,7 @@ const {
   } = require('includes/schema.js'); 
   
   
-const columns = (ctx) => simpleDimColumns('campagin').concat([
+const columns = (ctx) => simpleDimColumns('campaign').concat([
   { name: 'app_id', type: 'STRING NOT NULL', constraints: [
     'PRIMARY KEY',
     `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_app')})(id)`] }
@@ -26,7 +26,7 @@ const columns = (ctx) => simpleDimColumns('campagin').concat([
   
   businessUnits.forEach(businessUnit => {
     // For each business unit, create a view.
-    publish('stg_campagin', {
+    publish('stg_campaign', {
       type: 'view',
       schema: `${businessUnit.schemaPrefix}_${sourceSchemaSuffix}`,
       assertions: {

@@ -20,7 +20,7 @@ const columns = (ctx) => simpleDimColumns('ad').concat([
     `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_app')})(id)`] },
   { name: 'ad_set_id', type: 'STRING NOT NULL', alias: 'adset_id', constraints: [
     'PRIMARY KEY',
-    `FOREIGN KEY (app_id) (${ctx.ref(targetSchemaSuffix, 'dim_adset')})(id, app_id)`] },
+    `FOREIGN KEY (app_id) ${ctx.ref(targetSchemaSuffix, 'dim_adset')}(id, app_id)`] },
 ]);
 
   const uniqueAssertion = getPrimaryKeys(columns);

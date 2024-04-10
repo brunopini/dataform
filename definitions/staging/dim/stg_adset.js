@@ -14,7 +14,7 @@ const {
   } = require('includes/schema.js'); 
   
   
-const columns = (ctx) => simpleDimColumns('adset').concat([
+const columns = (ctx) => simpleDimColumns('ad_set').concat([
   { name: 'app_id', type: 'STRING NOT NULL', constraints: [
     'PRIMARY KEY',
     `FOREIGN KEY (${ctx.ref(targetSchemaSuffix, 'dim_app')})(id)`] },
