@@ -24,10 +24,10 @@ const dimTables = [
         suffix: 'ad',
         clusterBy: ['app_id', 'adset_id']
     },
-    {
-        suffix: 'creative',
-        clusterBy: ['app_id']
-    },
+    // {
+    //     suffix: 'creative',
+    //     clusterBy: ['app_id']
+    // },
     // {
     //     suffix: 'category',
     //     clusterBy: []

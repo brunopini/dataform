@@ -3,7 +3,7 @@ const {
   businessUnits
 } = require('config.js');
 const {
-  generateJoinQueryForAccounts
+  generateUnionAllQuery
 } = require('includes/utils.js');
 const {
   getNotNullColumns,
